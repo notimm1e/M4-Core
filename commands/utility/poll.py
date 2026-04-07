@@ -16,7 +16,7 @@ class poll(commands.Cog):
 
         poll_msg = await ctx.send(embed=embed)
         await poll_msg.add_reaction("☑️")
-        await poll_msg.add_reaction("❎️")
+        await poll_msg.add_reaction("❌️")
 
         try:
             await ctx.message.delete()
