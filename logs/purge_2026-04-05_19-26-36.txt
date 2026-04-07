@@ -1,0 +1,8 @@
+--- INTERNAL PURGE LOG ---
+Guild: Immie's World | Channel: five
+Timestamp: 2026-04-05_19-26-36
+------------------------------
+
+[2026-04-05 13:53:32] onlyimmie (500683600614785025): !serverinfo
+[2026-04-05 13:53:33] M4 Core#0734 (1490331840056397825): 
+[2026-04-05 13:53:34] onlyimmie (500683600614785025): !userinfo
