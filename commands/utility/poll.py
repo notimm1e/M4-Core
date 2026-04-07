@@ -15,8 +15,8 @@ class poll(commands.Cog):
         embed.set_footer(text=f"started by {ctx.author.name}")
 
         poll_msg = await ctx.send(embed=embed)
-        await poll_msg.add_reaction("√")
-        await poll_msg.add_reaction("✖")
+        await poll_msg.add_reaction("☑️")
+        await poll_msg.add_reaction("❎️")
 
         try:
             await ctx.message.delete()
