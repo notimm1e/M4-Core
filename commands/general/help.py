@@ -1,11 +1,11 @@
 import discord
 from discord.ext import commands
 
-class Help(commands.Cog):
+class help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="help", aliases=["h", "commands"], description="show the system command menu")
+    @commands.hybrid_command(name="help", aliases=["h", "commands"], description="view the full system command list")
     async def help(self, ctx):
         embed = discord.Embed(
             title="╼ m4-core systems ╾",
@@ -14,56 +14,63 @@ class Help(commands.Cog):
         )
 
         embed.add_field(name="◈ general", value=(
-            "`!about` · system info\n"
-            "`!ping` · latency\n"
-            "`!uptime` · runtime\n"
-            "`!say <msg>` · repeat text ⌠auth⌡"
-        ), inline=True)
-
-        embed.add_field(name="◈ economy", value=(
-            "`!bal` · check cores\n"
-            "`!work` · earn cores ⧖\n"
-            "`!beg` · request cores ⧖\n"
-            "`!daily` · daily reward ⧖\n"
-            "`!dep/!with` · bank mgmt\n"
-            "`!pay <@user> <amt>` · transfer"
-        ), inline=True)
+            "`!ping` · check latency\n"
+            "`!uptime` · runtime duration\n"
+            "`!say <msg>` · broadcast ⌠auth⌡\n"
+            "`!help` · show this menu"
+        ), inline=False)
 
         embed.add_field(name="◈ utility", value=(
-            "`!avatar [@user]` · view pfp\n"
-            "`!userinfo` · member data\n"
-            "`!serverinfo` · guild data\n"
-            "`!calc <expr>` · math engine\n"
-            "`!poll` · create vote\n"
-            "`!password` · gen string\n"
-            "`!dice` · roll random"
+            "`!avatar [@user]` · show profile picture\n"
+            "`!userinfo [@user]` · detailed member data\n"
+            "`!serverinfo` · detailed guild stats\n"
+            "`!roleinfo <role>` · information about a role\n"
+            "`!calc <expr>` · evaluate math expressions\n"
+            "`!poll <query>` · create a yes/no poll\n"
+            "`!password [len]` · generate secure string\n"
+            "`!dice [sides]` · roll a random die"
         ), inline=False)
 
         embed.add_field(name="◈ moderation", value=(
-            "`!purge <amt>` · clear logs\n"
-            "`!warn/!rmwarn` · strikes\n"
-            "`!warnings` · view strikes\n"
-            "`!kick/!ban/!unban` · removal"
-        ), inline=True)
-
-        embed.add_field(name="◈ fun", value=(
-            "`!impostor [@user]` · sus levels\n"
-            "`!ship` · compatibility\n"
-            "`!8ball` · void wisdom\n"
-            "`!roast` · burn user\n"
-            "`!rps` · play bot\n"
-            "`!hack` · simulated breach\n"
-            "`!deathdate` · predict end"
-        ), inline=True)
-
-        embed.add_field(name="◈ system", value=(
-            "`!setwelcome` · config entry\n"
-            "`!pull` · github sync ⌠auth⌡\n"
-            "`!restart` · reboot bot ⌠auth⌡"
+            "`!purge <amt>` · clear logs ⌠perm⌡\n"
+            "`!warn <@user>` · issue strike ⌠perm⌡\n"
+            "`!warnings <@user>` · view strikes\n"
+            "`!rmwarn <@user> <idx>` · remove strike ⌠perm⌡\n"
+            "`!kick <@user>` · eject member ⌠perm⌡\n"
+            "`!ban <@user>` · blacklist user ⌠perm⌡\n"
+            "`!unban <id>` · lift blacklist ⌠perm⌡"
         ), inline=False)
 
-        embed.set_footer(text="⧖ = cooldown · ⌬ = cores · ⌠auth⌡ = authorized only")
+        embed.add_field(name="◈ economy", value=(
+            "`!bal` · check cores\n"
+            "`!dep/!with` · bank management\n"
+            "`!pay <@user> <amt>` · transfer cores\n"
+            "`!work` · labor shift ⧖\n"
+            "`!beg` · request cores ⧖\n"
+            "`!daily` · 24h reward ⧖\n"
+            "`!rob <@user>` · attempt theft ⧖\n"
+            "`!lb` · richest users"
+        ), inline=False)
+
+        embed.add_field(name="◈ fun", value=(
+            "`!ship @u1 @u2` · compatibility check\n"
+            "`!8ball <query>` · ask the magic ball\n"
+            "`!roast [@user]` · burn a member\n"
+            "`!rps <play>` · rock paper scissors\n"
+            "`!hack @user` · simulated breach\n"
+            "`!deathdate [@user]` · predict demise\n"
+            "`!impostor [@user]` · sus level check\n"
+            "`!confess <msg>` · anonymous message"
+        ), inline=False)
+
+        embed.add_field(name="◈ maintenance & events", value=(
+            "`!setwelcome <#ch>` · entry config ⌠perm⌡\n"
+            "`!pull [branch]` · github sync ⌠auth⌡\n"
+            "`!restart` · reboot bot process ⌠auth⌡"
+        ), inline=False)
+
+        embed.set_footer(text="⧖ = cooldown · ⌬ = cores · ⌠perm⌡ = requires permission · ⌠auth⌡ = authorized only")
         await ctx.send(embed=embed)
 
 async def setup(bot):
-    await bot.add_cog(Help(bot))
+    await bot.add_cog(help(bot))
