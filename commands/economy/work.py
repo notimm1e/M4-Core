@@ -13,12 +13,12 @@ class Work(commands.Cog):
         data = load_bank()
         data = open_account(ctx.author.id, data)
         
-        earnings = random.randint(100, 500)
+        earnings = random.randint(300, 850)
         user_id = str(ctx.author.id)
         data[user_id]["wallet"] += earnings
         save_bank(data)
         
-        logs = ["system maintenance", "data mining", "protocol optimization"]
+        logs = ["system maintenance", "data mining", "protocol optimization", "drug dealing", "selling fish", "freelancing", "dog walking", "lawn mowing"]
         
         embed = discord.Embed(
             title=f"⚒ {random.choice(logs)}",
