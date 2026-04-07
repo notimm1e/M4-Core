@@ -7,7 +7,11 @@ class General(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f'🏓 Pong! {round(self.bot.latency * 1000)}ms')
+        await ctx.send(embed=discord.Embed(
+            title="⟳ pong!",
+            description=f"`{round(self.bot.latency * 1000)}ms`",
+            color=discord.Color.blue()
+        ))
 
 async def setup(bot):
     await bot.add_cog(General(bot))
