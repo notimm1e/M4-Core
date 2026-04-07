@@ -23,17 +23,9 @@ class warn(commands.Cog):
     @commands.has_permissions(moderate_members=True)
     async def warn(self, ctx, member: discord.Member, *, reason: str = "no reason provided"):
         if member == ctx.author:
-            return await ctx.send(embed=discord.Embed(
-                title="✖ invalid target",
-                description="you can't warn yourself.",
-                color=discord.Color.red()
-            ))
+            return await ctx.send(embed=discord.Embed(title="✖ invalid target", description="you can't warn yourself.", color=discord.Color.red()))
         if member.top_role >= ctx.author.top_role:
-            return await ctx.send(embed=discord.Embed(
-                title="✖ insufficient hierarchy",
-                description="you can't warn someone with an equal or higher role.",
-                color=discord.Color.red()
-            ))
+            return await ctx.send(embed=discord.Embed(title="✖ insufficient hierarchy", description="you can't warn someone with an equal or higher role.", color=discord.Color.red()))
 
         data = load_warnings()
         guild_id = str(ctx.guild.id)
@@ -99,6 +91,38 @@ class warn(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(name="rmwarn", aliases=["delwarn", "removewarn"])
+    @commands.has_permissions(moderate_members=True)
+    async def rmwarn(self, ctx, member: discord.Member, index: int):
+        data = load_warnings()
+        guild_id = str(ctx.guild.id)
+        user_id = str(member.id)
+
+        warns = data.get(guild_id, {}).get(user_id, [])
+
+        if not warns:
+            return await ctx.send(embed=discord.Embed(
+                title="✖ no warnings",
+                description=f"{member.mention} has no warnings.",
+                color=discord.Color.red()
+            ))
+
+        if index < 1 or index > len(warns):
+            return await ctx.send(embed=discord.Embed(
+                title="✖ invalid index",
+                description=f"provide a number between `1` and `{len(warns)}`.",
+                color=discord.Color.red()
+            ))
+
+        removed = data[guild_id][user_id].pop(index - 1)
+        save_warnings(data)
+
+        await ctx.send(embed=discord.Embed(
+            title="√ warning removed",
+            description=f"removed warning `#{index}` from {member.mention}\n**reason was:** {removed['reason']}",
+            color=discord.Color.green()
+        ))
+
     @warn.error
     async def warn_error(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
@@ -112,6 +136,15 @@ class warn(commands.Cog):
             await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `moderate members` to view warnings.", color=discord.Color.red()))
         elif isinstance(error, commands.MemberNotFound):
             await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
+
+    @rmwarn.error
+    async def rmwarn_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `moderate members` to remove warnings.", color=discord.Color.red()))
+        elif isinstance(error, commands.MemberNotFound):
+            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(embed=discord.Embed(title="✖ missing argument", description="usage: `!rmwarn @member <index>`\nuse `!warnings @member` to see indices.", color=discord.Color.red()))
 
 async def setup(bot):
     await bot.add_cog(warn(bot))
