@@ -1,0 +1,12 @@
+venv/
+ENV/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*.command
+.env
+.DS_Store
+.AppleDouble
+.LSOverride
+*.txt
