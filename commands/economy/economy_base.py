@@ -5,7 +5,7 @@ from discord.ext import commands
 BANK_FILE = "bank.json"
 
 def load_bank():
-    """reads the bank.json file and returns the data as a dictionary."""
+    """reads the bank.json file and returns the data."""
     if os.path.exists(BANK_FILE):
         try:
             with open(BANK_FILE, "r") as f:
@@ -15,12 +15,12 @@ def load_bank():
     return {}
 
 def save_bank(data):
-    """writes the current economy data back to the bank.json file."""
+    """writes the current economy data back to the file."""
     with open(BANK_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
 def open_account(user_id, data):
-    """ensures a user has an entry in the bank."""
+    """ensures a user has an entry in the system with a starting balance."""
     user_id = str(user_id)
     if user_id not in data:
         data[user_id] = {"wallet": 100, "bank": 0}
@@ -28,5 +28,5 @@ def open_account(user_id, data):
     return data
 
 async def setup(bot):
-    """prevents extension loading errors."""
+    """utility file setup to prevent loading errors."""
     pass

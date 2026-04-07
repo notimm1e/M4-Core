@@ -7,7 +7,7 @@ class Work(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="work", description="work a shift to earn money")
+    @commands.hybrid_command(name="work", description="work a shift to earn cores")
     @commands.cooldown(1, 600, commands.BucketType.user)
     async def work(self, ctx):
         data = load_bank()
@@ -18,14 +18,14 @@ class Work(commands.Cog):
         data[user_id]["wallet"] += earnings
         save_bank(data)
         
-        jobs = ["delivery completed", "shift finished", "freelance task done"]
+        logs = ["system maintenance", "data mining", "protocol optimization"]
         
         embed = discord.Embed(
-            title=f"⚒ {random.choice(jobs)}",
-            description=f"you earned **⌬ {earnings}** for your labor.",
-            color=0x77dd77
+            title=f"⚒ {random.choice(logs)}",
+            description=f"you earned **⌬ {earnings}** cores.",
+            color=0x2b2d31
         )
-        embed.set_footer(text=f"new wallet balance: {data[user_id]['wallet']}")
+        embed.set_footer(text=f"wallet: {data[user_id]['wallet']} cores")
         
         await ctx.send(embed=embed)
 
@@ -33,7 +33,7 @@ class Work(commands.Cog):
     async def work_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             min_left = round(error.retry_after / 60)
-            embed = discord.Embed(description=f"⧖ shift ended: return in {min_left}m", color=0xff4500)
+            embed = discord.Embed(description=f"⧖ cooldown: {min_left}m remaining", color=0xff4500)
             await ctx.send(embed=embed, ephemeral=True)
 
 async def setup(bot):

@@ -6,7 +6,7 @@ class Balance(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="balance", aliases=["bal"], description="check your current wallet and bank balance")
+    @commands.hybrid_command(name="balance", aliases=["bal"], description="check your current wallet and bank")
     async def balance(self, ctx, member: discord.Member = None):
         member = member or ctx.author
         data = load_bank()
@@ -20,10 +20,10 @@ class Balance(commands.Cog):
             title=f"╼ {member.display_name.lower()}'s ledger ╾",
             color=0x2b2d31
         )
-        embed.add_field(name="◈ wallet", value=f"⌬ {wallet:,}", inline=True)
-        embed.add_field(name="◈ bank", value=f"⌬ {bank:,}", inline=True)
-        embed.add_field(name="▼ total", value=f"**⌬ {wallet + bank:,}**", inline=False)
-        embed.set_footer(text="m4-core economy system")
+        embed.add_field(name="◈ wallet", value=f"⌬ {wallet:,} cores", inline=True)
+        embed.add_field(name="◈ bank", value=f"⌬ {bank:,} cores", inline=True)
+        embed.add_field(name="▼ total", value=f"**⌬ {wallet + bank:,} cores**", inline=False)
+        embed.set_footer(text="m4-core systems")
         
         await ctx.send(embed=embed)
 
