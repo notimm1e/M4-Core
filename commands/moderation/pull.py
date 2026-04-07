@@ -19,6 +19,12 @@ class GitManager(commands.Cog):
                     try:
                         await self.bot.reload_extension(module_path)
                         results.append(f"√ `{module_path}`")
+                    except commands.ExtensionNotLoaded:
+                        try:
+                            await self.bot.load_extension(module_path)
+                            results.append(f"√ `{module_path}` (new)")
+                        except Exception as e:
+                            results.append(f"✖ `{module_path}`: {e}")
                     except Exception as e:
                         results.append(f"✖ `{module_path}`: {e}")
         return results
@@ -30,14 +36,13 @@ class GitManager(commands.Cog):
 
         branch = branch.lower()
         if branch not in ["canary", "main"]:
-            return await ctx.send("❌ Use `!pull canary` or `!pull main`.")
+            return await ctx.send("✖ use `!pull canary` or `!pull main`.")
 
-        embed = discord.Embed(
+        status_msg = await ctx.send(embed=discord.Embed(
             title="⟳ pulling",
             description=f"pulling and updating bot internals from **{branch}**...",
             color=discord.Color.blue()
-        )
-        status_msg = await ctx.send(embed=embed)
+        ))
 
         try:
             process = await asyncio.create_subprocess_shell(
@@ -62,31 +67,30 @@ class GitManager(commands.Cog):
             if len(log_chunk) > 1024:
                 log_chunk = log_chunk[:1020] + "..."
 
-            success_embed = discord.Embed(
+            embed = discord.Embed(
                 title="√ pulled!",
                 description=f"pulled and updated bot internals from `{branch}`.",
                 color=discord.Color.green()
             )
-            success_embed.add_field(name="git output", value=f"```\n{git_log}\n```", inline=False)
-            success_embed.add_field(name="bot logs", value=log_chunk or "No cogs found.", inline=False)
-            await status_msg.edit(embed=success_embed)
+            embed.add_field(name="git output", value=f"```\n{git_log}\n```", inline=False)
+            embed.add_field(name="bot logs", value=log_chunk or "no cogs found.", inline=False)
+            await status_msg.edit(embed=embed)
 
         except Exception as e:
             err = str(e)
             if len(err) > 1000:
                 err = err[:1000] + "..."
-            error_embed = discord.Embed(
+            embed = discord.Embed(
                 title="✖ pull failed",
                 description=f"```\n{err}\n```",
                 color=discord.Color.red()
             )
-            error_embed.add_field(
-                name="error - common causes below",
-                value="• Invalid branch name\n• Git not installed in venv path\n• Network issue",
+            embed.add_field(
+                name="common causes",
+                value="• invalid branch name\n• git not in venv path\n• network issue",
                 inline=False
             )
-            await status_msg.edit(embed=error_embed)
+            await status_msg.edit(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(GitManager(bot))
-
