@@ -33,8 +33,8 @@ class GitManager(commands.Cog):
             return await ctx.send("❌ Use `!pull canary` or `!pull main`.")
 
         embed = discord.Embed(
-            title="⟳ Pulling",
-            description=f"Syncing from **{branch}**...",
+            title="⟳ pulling",
+            description=f"pulling and updating bot internals from **{branch}**...",
             color=discord.Color.blue()
         )
         status_msg = await ctx.send(embed=embed)
@@ -56,19 +56,19 @@ class GitManager(commands.Cog):
             if len(git_log) > 500:
                 git_log = "..." + git_log[-497:]
             if not git_log:
-                git_log = "Already up to date."
+                git_log = "already up to date."
 
             log_chunk = "\n".join(reload_logs)
             if len(log_chunk) > 1024:
                 log_chunk = log_chunk[:1020] + "..."
 
             success_embed = discord.Embed(
-                title="✅ Pull Complete",
-                description=f"Synced with `{branch}`.",
+                title="√ pulled!",
+                description=f"pulled and updated bot internals from `{branch}`.",
                 color=discord.Color.green()
             )
-            success_embed.add_field(name="Git Output", value=f"```\n{git_log}\n```", inline=False)
-            success_embed.add_field(name="Reload Logs", value=log_chunk or "No cogs found.", inline=False)
+            success_embed.add_field(name="git output", value=f"```\n{git_log}\n```", inline=False)
+            success_embed.add_field(name="bot logs", value=log_chunk or "No cogs found.", inline=False)
             await status_msg.edit(embed=success_embed)
 
         except Exception as e:
@@ -76,12 +76,12 @@ class GitManager(commands.Cog):
             if len(err) > 1000:
                 err = err[:1000] + "..."
             error_embed = discord.Embed(
-                title="❌ Pull Failed",
+                title="✖ pull failed",
                 description=f"```\n{err}\n```",
                 color=discord.Color.red()
             )
             error_embed.add_field(
-                name="Common Causes",
+                name="error - common causes below",
                 value="• Invalid branch name\n• Git not installed in venv path\n• Network issue",
                 inline=False
             )
