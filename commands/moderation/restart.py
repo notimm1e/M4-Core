@@ -1,3 +1,9 @@
+import discord
+from discord.ext import commands
+import asyncio
+import os
+import sys
+
 @commands.command(name="restart")
 async def restart(self, ctx):
     if ctx.author.id not in AUTHORIZED:
