@@ -5,7 +5,7 @@ import sys
 
 AUTHORIZED = {779653730978103306, 500683600614785025}
 
-class Restart(commands.Cog):
+class restart(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -24,4 +24,4 @@ class Restart(commands.Cog):
         os.execv(sys.executable, [sys.executable, "main.py"])
 
 async def setup(bot):
-    await bot.add_cog(Restart(bot))
+    await bot.add_cog(restart(bot))

@@ -3,10 +3,9 @@ import json
 import os
 from discord.ext import commands
 
-# File to store server-specific settings
 SETTINGS_FILE = "server_settings.json"
 
-class Welcome(commands.Cog):
+class welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.data = self.load_settings()
@@ -24,34 +23,36 @@ class Welcome(commands.Cog):
     @commands.command(name="setwelcome")
     @commands.has_permissions(manage_guild=True)
     async def setwelcome(self, ctx, channel: discord.TextChannel):
-        """Sets the welcome channel for this server."""
         guild_id = str(ctx.guild.id)
         if guild_id not in self.data:
             self.data[guild_id] = {}
-        
+
         self.data[guild_id]["welcome_channel"] = channel.id
         self.save_settings()
-        await ctx.send(f"✅ Welcome messages will now be sent to {channel.mention}")
+        await ctx.send(embed=discord.Embed(
+            title="√ welcome channel set",
+            description=f"welcome messages will now be sent to {channel.mention}.",
+            color=discord.Color.green()
+        ))
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        """Triggers when a member joins a server."""
         guild_id = str(member.guild.id)
-        
-        # Check if this specific server has a welcome channel set
-        if guild_id in self.data and "welcome_channel" in self.data[guild_id]:
-            channel_id = self.data[guild_id]["welcome_channel"]
-            channel = self.bot.get_channel(channel_id)
-            
-            if channel:
-                embed = discord.Embed(
-                    title="Welcome!",
-                    description=f"Happy to have you here, {member.mention}!",
-                    color=discord.Color.green()
-                )
-                embed.set_thumbnail(url=member.display_avatar.url)
-                embed.set_footer(text=f"Member Count: {member.guild.member_count}")
-                await channel.send(embed=embed)
+        if guild_id not in self.data or "welcome_channel" not in self.data[guild_id]:
+            return
+
+        channel = self.bot.get_channel(self.data[guild_id]["welcome_channel"])
+        if not channel:
+            return
+
+        embed = discord.Embed(
+            title="welcome!",
+            description=f"glad to have you here, {member.mention}.",
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.set_footer(text=f"member #{member.guild.member_count}")
+        await channel.send(embed=embed)
 
 async def setup(bot):
-    await bot.add_cog(Welcome(bot))
+    await bot.add_cog(welcome(bot))

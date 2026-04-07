@@ -5,7 +5,7 @@ import os
 
 AUTHORIZED = {779653730978103306, 500683600614785025}
 
-class GitManager(commands.Cog):
+class pull(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -93,4 +93,4 @@ class GitManager(commands.Cog):
             await status_msg.edit(embed=embed)
 
 async def setup(bot):
-    await bot.add_cog(GitManager(bot))
+    await bot.add_cog(pull(bot))
