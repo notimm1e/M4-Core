@@ -6,7 +6,7 @@ env/
 .venv/
 __pycache__/
 *.py[cod]
-
+*.command
 # --- The "Secret" Box ---
 # NEVER upload your bot tokens or API keys!
 .env
