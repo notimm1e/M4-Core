@@ -1,11 +1,10 @@
 import json
 import os
-from discord.ext import commands
+import time
 
 BANK_FILE = "bank.json"
 
 def load_bank():
-    """reads the bank.json file and returns the data."""
     if os.path.exists(BANK_FILE):
         try:
             with open(BANK_FILE, "r") as f:
@@ -15,18 +14,26 @@ def load_bank():
     return {}
 
 def save_bank(data):
-    """writes the current economy data back to the file."""
     with open(BANK_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
 def open_account(user_id, data):
-    """ensures a user has an entry in the system with a starting balance."""
     user_id = str(user_id)
     if user_id not in data:
-        data[user_id] = {"wallet": 100, "bank": 0}
+        # Added tracking keys for persistent cooldowns
+        data[user_id] = {
+            "wallet": 100, 
+            "bank": 0,
+            "last_work": 0,
+            "last_beg": 0,
+            "last_daily": 0
+        }
         save_bank(data)
     return data
 
-async def setup(bot):
-    """utility file setup to prevent loading errors."""
-    pass
+def get_cooldown(user_id, data, key, seconds):
+    """Returns remaining seconds if on cooldown, else 0."""
+    current_time = time.time()
+    last_time = data[str(user_id)].get(key, 0)
+    remaining = (last_time + seconds) - current_time
+    return max(0, round(remaining))
