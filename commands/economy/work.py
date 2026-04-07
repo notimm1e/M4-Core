@@ -33,7 +33,7 @@ class Work(commands.Cog):
     async def work_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             min_left = round(error.retry_after / 60)
-            embed = discord.Embed(description=f"⏳ exhaustion: return in {min_left}m", color=0xff4500)
+            embed = discord.Embed(description=f"⧖ shift ended: return in {min_left}m", color=0xff4500)
             await ctx.send(embed=embed, ephemeral=True)
 
 async def setup(bot):

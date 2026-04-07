@@ -32,7 +32,7 @@ class Beg(commands.Cog):
     @beg.error
     async def beg_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            embed = discord.Embed(description=f"⏳ retry in {round(error.retry_after)}s", color=0xff4500)
+            embed = discord.Embed(description=f"⧖ retry in {round(error.retry_after)}s", color=0xff4500)
             await ctx.send(embed=embed, ephemeral=True)
 
 async def setup(bot):
