@@ -1,19 +1,27 @@
 import discord
 from discord.ext import commands
-import asyncio
 import os
 import sys
 
-@commands.command(name="restart")
-async def restart(self, ctx):
-    if ctx.author.id not in AUTHORIZED:
-        return
+AUTHORIZED = {779653730978103306, 500683600614785025}
 
-    await ctx.send(embed=discord.Embed(
-        title="⟳ restarting",
-        description="restarting bot process...",
-        color=discord.Color.blue()
-    ))
+class Restart(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-    await self.bot.close()
-    os.execv(sys.executable, [sys.executable, "main.py"])
+    @commands.command(name="restart")
+    async def restart(self, ctx):
+        if ctx.author.id not in AUTHORIZED:
+            return
+
+        await ctx.send(embed=discord.Embed(
+            title="⟳ restarting",
+            description="restarting bot process...",
+            color=discord.Color.blue()
+        ))
+
+        await self.bot.close()
+        os.execv(sys.executable, [sys.executable, "main.py"])
+
+async def setup(bot):
+    await bot.add_cog(Restart(bot))
