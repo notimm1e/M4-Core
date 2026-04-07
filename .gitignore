@@ -1,5 +1,3 @@
-# --- Python & Virtual Environments ---
-# We don't need to upload the actual Python interpreter, just the code.
 venv/
 ENV/
 env/
@@ -7,18 +5,7 @@ env/
 __pycache__/
 *.py[cod]
 *.command
-# --- The "Secret" Box ---
-# NEVER upload your bot tokens or API keys!
 .env
-
-# --- Mac Specific Garbage ---
-# These are hidden files the Mac creates for folder icons. 
-# They cause "oopsies" when moving between different computers.
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# --- Local Logs & Databases ---
-# If your bot writes its own logs or has a local test database.
-*.log
-local_db.sqlite
