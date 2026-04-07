@@ -6,56 +6,59 @@ class snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sniped = {}
+        self.edit_sniped = {}
+
+    def get_redacted_data(self, message):
+        """Helper to create redacted or normal data dictionary."""
+        is_confession = message.content.lower().startswith("!confess ")
+        
+        if is_confession:
+            return {
+                "content": message.content,
+                "author_name": "[REDACTED]",
+                "avatar": "https://i.imgur.com/839I7sH.png", # Empty/Transparent placeholder
+                "at": datetime.utcnow()
+            }
+        else:
+            return {
+                "content": message.content,
+                "author_name": message.author.display_name.lower(),
+                "avatar": message.author.display_avatar.url,
+                "at": datetime.utcnow()
+            }
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.bot:
             return
+        self.sniped[message.channel.id] = self.get_redacted_data(message)
 
-        # Check if the message is a confession
-        # We check for "!confess " to ensure it's the actual command
-        is_confession = message.content.lower().startswith("!confess ")
-
-        if is_confession:
-            # Redact information for confessions
-            self.sniped[message.channel.id] = {
-                "content": message.content,
-                "author_name": "[REDACTED]",
-                "avatar": "https://i.imgur.com/839I7sH.png", # Transparent/Empty placeholder
-                "at": datetime.utcnow(),
-                "is_anonymous": True
-            }
-        else:
-            # Store normal message data
-            self.sniped[message.channel.id] = {
-                "content": message.content,
-                "author_name": message.author.display_name.lower(),
-                "avatar": message.author.display_avatar.url,
-                "at": datetime.utcnow(),
-                "is_anonymous": False
-            }
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        if before.author.bot or before.content == after.content:
+            return
+        self.edit_sniped[before.channel.id] = self.get_redacted_data(before)
 
     @commands.hybrid_command(name="snipe", aliases=["s"], description="retrieve the last deleted message")
     async def snipe(self, ctx):
         data = self.sniped.get(ctx.channel.id)
-        
         if not data:
-            return await ctx.send(embed=discord.Embed(
-                description="⊘ no data found in the buffer for this channel.",
-                color=0xff4500
-            ))
+            return await ctx.send(embed=discord.Embed(description="⊘ no deleted data found.", color=0xff4500))
 
-        embed = discord.Embed(
-            description=data["content"] or "*[no data]*",
-            color=0x2b2d31
-        )
-        
-        # Set the author based on whether it was redacted or not
+        embed = discord.Embed(description=data["content"] or "*[no text]*", color=0x2b2d31)
         embed.set_author(name=f"╼ {data['author_name']} ╾", icon_url=data["avatar"])
-        
-        timestamp = data['at'].strftime('%H:%M:%S')
-        embed.set_footer(text=f"⌬ captured at {timestamp} UTC")
-        
+        embed.set_footer(text=f"⌬ deleted at {data['at'].strftime('%H:%M:%S')} UTC")
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(name="editsnipe", aliases=["es"], description="retrieve the last edited message")
+    async def editsnipe(self, ctx):
+        data = self.edit_sniped.get(ctx.channel.id)
+        if not data:
+            return await ctx.send(embed=discord.Embed(description="⊘ no edited data found.", color=0xff4500))
+
+        embed = discord.Embed(description=data["content"] or "*[no text]*", color=0x2b2d31)
+        embed.set_author(name=f"╼ {data['author_name']} ╾", icon_url=data["avatar"])
+        embed.set_footer(text=f"⌬ edited at {data['at'].strftime('%H:%M:%S')} UTC")
         await ctx.send(embed=embed)
 
 async def setup(bot):
