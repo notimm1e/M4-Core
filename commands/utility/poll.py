@@ -8,7 +8,7 @@ class poll(commands.Cog):
     @commands.command(name="poll", aliases=["vote", "question"])
     async def poll(self, ctx, *, question: str):
         embed = discord.Embed(
-            title="poll",
+            title="⌯⌲ poll",
             description=question,
             color=discord.Color.blurple()
         )

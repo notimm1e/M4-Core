@@ -22,7 +22,7 @@ class serverinfo(commands.Cog):
         boosts = guild.premium_subscription_count
 
         embed = discord.Embed(
-            title=guild.name,
+            title="✦", guild.name,
             description=guild.description or "no description set.",
             color=discord.Color.blue()
         )
