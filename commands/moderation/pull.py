@@ -18,9 +18,9 @@ class GitManager(commands.Cog):
                     module_path = rel_path.replace(os.sep, ".").removesuffix(".py")
                     try:
                         await self.bot.reload_extension(module_path)
-                        results.append(f"✅ `{module_path}`")
+                        results.append(f"√ `{module_path}`")
                     except Exception as e:
-                        results.append(f"❌ `{module_path}`: {e}")
+                        results.append(f"✖ `{module_path}`: {e}")
         return results
 
     @commands.command(name="pull")
