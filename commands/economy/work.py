@@ -2,7 +2,7 @@ import discord
 import random
 import time
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown
+from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown, apply_earnings, debt_prompt
 
 COOLDOWN = 180
 
@@ -16,6 +16,8 @@ class Work(commands.Cog):
         data = open_account(ctx.author.id, data)
         user_id = str(ctx.author.id)
 
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         remaining = get_cooldown(ctx.author.id, data, "last_work", COOLDOWN)
         if remaining:
             min_left = round(remaining / 60)
@@ -24,16 +26,20 @@ class Work(commands.Cog):
             ), ephemeral=True)
 
         earnings = random.randint(300, 850)
-        data[user_id]["wallet"] += earnings
+        debt_paid, to_wallet = apply_earnings(user_id, data, earnings)
         set_cooldown(ctx.author.id, data, "last_work")
         save_bank(data)
 
         logs = ["system maintenance", "data mining", "protocol optimization", "drug dealing",
                 "selling fish", "freelancing", "dog walking", "lawn mowing"]
 
+        desc = f"you earned **⌬ {earnings}** cores."
+        if debt_paid:
+            desc += f"\n⌬ {debt_paid:,} went toward your debt."
+
         embed = discord.Embed(
             title=f"⚒ {random.choice(logs)}",
-            description=f"you earned **⌬ {earnings}** cores.",
+            description=desc,
             color=0x57f287
         )
         embed.set_footer(text=f"wallet: {data[user_id]['wallet']} cores")
