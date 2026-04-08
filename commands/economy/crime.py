@@ -3,13 +3,13 @@ import random
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown
 
-ROB_COOLDOWN = 7200
-CRIME_COOLDOWN = 3600
+ROB_COOLDOWN = 300
+CRIME_COOLDOWN = 600
 
 CRIMES = [
     "hacked a government server", "pickpocketed a tourist", "sold knockoff merch",
     "ran a pyramid scheme", "shoplifted a vending machine", "forged a document",
-    "jaywalked aggressively", "smuggled rare cheese",
+    "jaywalked aggressively", "smuggled rare cheese", "sold cocaine", "took an assassin job", "spiked a bar drink", "robbed a bank",
 ]
 
 class Crime(commands.Cog):
