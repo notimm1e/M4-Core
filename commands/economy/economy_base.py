@@ -8,32 +8,48 @@ def load_bank():
     if os.path.exists(BANK_FILE):
         try:
             with open(BANK_FILE, "r") as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            return {}
+                content = f.read().strip()
+                if content:
+                    return json.loads(content)
+        except (json.JSONDecodeError, OSError):
+            pass
     return {}
 
 def save_bank(data):
-    with open(BANK_FILE, "w") as f:
+    tmp = BANK_FILE + ".tmp"
+    with open(tmp, "w") as f:
         json.dump(data, f, indent=4)
+    os.replace(tmp, BANK_FILE)
 
 def open_account(user_id, data):
     user_id = str(user_id)
     if user_id not in data:
-        # Added tracking keys for persistent cooldowns
         data[user_id] = {
-            "wallet": 100, 
+            "wallet": 100,
             "bank": 0,
             "last_work": 0,
             "last_beg": 0,
-            "last_daily": 0
+            "last_daily": 0,
+            "last_crime": 0,
+            "last_rob": 0,
         }
         save_bank(data)
+    else:
+        # Ensure existing accounts have all cooldown keys
+        changed = False
+        for key in ("last_work", "last_beg", "last_daily", "last_crime", "last_rob"):
+            if key not in data[user_id]:
+                data[user_id][key] = 0
+                changed = True
+        if changed:
+            save_bank(data)
     return data
 
 def get_cooldown(user_id, data, key, seconds):
-    """Returns remaining seconds if on cooldown, else 0."""
     current_time = time.time()
     last_time = data[str(user_id)].get(key, 0)
     remaining = (last_time + seconds) - current_time
     return max(0, round(remaining))
+
+def set_cooldown(user_id, data, key):
+    data[str(user_id)][key] = time.time()

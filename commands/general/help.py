@@ -10,12 +10,13 @@ class help(commands.Cog):
         embed = discord.Embed(
             title="╼ m4-core systems ╾",
             description="prefix: `!` · currency: `cores`",
-            color=0x2b2d31
+            color=0x5865f2
         )
 
         embed.add_field(name="◈ general", value=(
             "`!ping` · check latency\n"
             "`!uptime` · runtime duration\n"
+            "`!about` · bot information\n"
             "`!say <msg>` · broadcast ⌠auth⌡\n"
             "`!help` · show this menu"
         ), inline=False)
@@ -28,7 +29,11 @@ class help(commands.Cog):
             "`!calc <expr>` · evaluate math expressions\n"
             "`!poll <query>` · create a yes/no poll\n"
             "`!password [len]` · generate secure string\n"
-            "`!dice [sides]` · roll a random die"
+            "`!dice [sides]` · roll a random die\n"
+            "`!snipe` · last deleted message\n"
+            "`!editsnipe` · last edited message\n"
+            "`!timer <sec> [label]` · countdown timer\n"
+            "`!afk [reason]` · set afk status"
         ), inline=False)
 
         embed.add_field(name="◈ moderation", value=(
@@ -49,6 +54,9 @@ class help(commands.Cog):
             "`!beg` · request cores ⧖\n"
             "`!daily` · 24h reward ⧖\n"
             "`!rob <@user>` · attempt theft ⧖\n"
+            "`!crime` · commit a crime ⧖\n"
+            "`!blackjack <amt>` · play blackjack\n"
+            "`!plinko <amt>` · drop the ball\n"
             "`!lb` · richest users"
         ), inline=False)
 
@@ -60,12 +68,14 @@ class help(commands.Cog):
             "`!hack @user` · simulated breach\n"
             "`!deathdate [@user]` · predict demise\n"
             "`!impostor [@user]` · sus level check\n"
+            "`!dumbass [@user]` · issue certificate\n"
             "`!confess <msg>` · anonymous message"
         ), inline=False)
 
         embed.add_field(name="◈ maintenance & events", value=(
             "`!setwelcome <#ch>` · entry config ⌠perm⌡\n"
             "`!pull [branch]` · github sync ⌠auth⌡\n"
+            "`!reload [cog]` · reload module ⌠auth⌡\n"
             "`!restart` · reboot bot process ⌠auth⌡"
         ), inline=False)
 
