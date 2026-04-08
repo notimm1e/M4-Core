@@ -29,11 +29,11 @@ def build_board(path_taken, current_col, row, total_cols=7):
             # ball is here
             pegs = ["◇"] * total_cols
             pegs[current_col] = "●"
-            lines.append(" ".join(pegs))
+            lines.append("".join(pegs))
         else:
-            lines.append("  ".join(["◇"] * total_cols))
+            lines.append("".join(["◇"] * total_cols))
     # slot row
-    slot_row = " ".join(SLOTS)
+    slot_row = "".join(SLOTS)
     lines.append(slot_row)
     return "\n".join(lines)
 
