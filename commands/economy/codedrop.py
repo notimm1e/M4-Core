@@ -3,7 +3,7 @@ import random
 import string
 import asyncio
 from discord.ext import commands, tasks
-from commands.economy.economy_base import load_codes, save_codes
+from commands.economy.codes import load_codes, save_codes
 
 DROP_CHANNEL_ID = 1491254006117564496
 DROP_INTERVAL = 5
