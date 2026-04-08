@@ -101,5 +101,27 @@ class Codes(commands.Cog):
 
         await ctx.send(embed=discord.Embed(description=desc, color=0x57f287))
 
+    @commands.command(name="revokecode")
+    async def revokecode(self, ctx, code: str):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(
+                description="⊘ unauthorized.", color=0xff4500
+            ))
+
+        codes = load_codes()
+        code = code.upper()
+
+        if code not in codes:
+            return await ctx.send(embed=discord.Embed(
+                description=f"⊘ code `{code}` doesn't exist.", color=0xff4500
+            ))
+
+        del codes[code]
+        save_codes(codes)
+
+        await ctx.send(embed=discord.Embed(
+            description=f"√ code `{code}` revoked.", color=0x57f287
+        ))
+
 async def setup(bot):
     await bot.add_cog(Codes(bot))
