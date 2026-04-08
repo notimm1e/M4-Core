@@ -3,7 +3,7 @@ import random
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown
 
-COOLDOWN = 3000
+COOLDOWN = 120
 
 class Beg(commands.Cog):
     def __init__(self, bot):
