@@ -29,15 +29,15 @@ class Crime(commands.Cog):
 
         remaining = get_cooldown(ctx.author.id, data, "last_rob", ROB_COOLDOWN)
         if remaining:
-            min = round(remaining / 60, 1)
+            mins = round(remaining / 60, 1)
             return await ctx.send(embed=discord.Embed(
-                description=f"⧖ lay low for {min}m", color=0xff4500
+                description=f"⧖ lay low for {mins}m", color=0xff4500
             ), ephemeral=True)
 
         victim_id = str(member.id)
         robber_id = str(ctx.author.id)
 
-        if data[victim_id]["wallet"] < 100:
+        if data[victim_id]["wallet"] < 150:
             return await ctx.send("⊘ this user is too poor to rob.")
 
         set_cooldown(ctx.author.id, data, "last_rob")
