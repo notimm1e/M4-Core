@@ -27,9 +27,9 @@ class Crime(commands.Cog):
 
         remaining = get_cooldown(ctx.author.id, data, "last_rob", ROB_COOLDOWN)
         if remaining:
-            hrs = round(remaining / 3600, 1)
+            min = round(remaining / 60, 1)
             return await ctx.send(embed=discord.Embed(
-                description=f"⧖ lay low for {hrs}h", color=0xff4500
+                description=f"⧖ lay low for {min}m", color=0xff4500
             ), ephemeral=True)
 
         victim_id = str(member.id)
