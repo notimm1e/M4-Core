@@ -3,7 +3,7 @@ import random
 import asyncio
 import time
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account
+from commands.economy.economy_base import load_bank, save_bank, open_account, apply_loss, apply_earnings, debt_prompt
 
 class Blackjack(commands.Cog):
     def __init__(self, bot):
@@ -18,6 +18,8 @@ class Blackjack(commands.Cog):
         data = open_account(ctx.author.id, data)
         user_id = str(ctx.author.id)
 
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         if amount > data[user_id]["wallet"] or amount <= 0:
             return await ctx.send("⊘ insufficient cores in wallet.")
 
@@ -27,7 +29,6 @@ class Blackjack(commands.Cog):
         def create_embed(show_dealer=False):
             p_score = sum(player_hand)
             d_score = sum(dealer_hand) if show_dealer else f"{dealer_hand[0]} + ?"
-            
             embed = discord.Embed(title="╼ blackjack ╾", color=0x2b2d31)
             embed.add_field(name="◈ your hand", value=f"cards: `{player_hand}`\ntotal: `{p_score}`")
             embed.add_field(name="◈ dealer hand", value=f"total: `{d_score}`")
@@ -42,18 +43,15 @@ class Blackjack(commands.Cog):
         def check(reaction, user):
             return user == ctx.author and str(reaction.emoji) in ["➕", "🛑"] and reaction.message.id == msg.id
 
-        # Player's Turn Loop
         while sum(player_hand) < 21:
             try:
                 reaction, user = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
-                
                 if str(reaction.emoji) == "➕":
                     player_hand.append(self.get_card())
                     await msg.edit(embed=create_embed())
                     try:
                         await msg.remove_reaction(reaction, user)
-                    except: pass # Ignore if bot lacks permission
-                    
+                    except: pass
                     if sum(player_hand) >= 21:
                         break
                 elif str(reaction.emoji) == "🛑":
@@ -61,27 +59,35 @@ class Blackjack(commands.Cog):
             except asyncio.TimeoutError:
                 break
 
-        # Dealer's Turn
         p_total = sum(player_hand)
         if p_total <= 21:
             while sum(dealer_hand) < 17:
                 dealer_hand.append(self.get_card())
-        
+
         d_total = sum(dealer_hand)
-        
-        # Result Logic
+
         if p_total > 21:
+            apply_loss(user_id, data, amount)
+            debt = data[user_id]["debt"]
             result = f"⊘ bust. you lost **⌬ {amount}** cores."
-            data[user_id]["wallet"] -= amount
+            if debt > 0:
+                result += f"\n⌬ {debt:,} now in debt."
         elif d_total > 21:
+            debt_paid, to_wallet = apply_earnings(user_id, data, amount)
             result = f"◈ dealer bust. you won **⌬ {amount}** cores."
-            data[user_id]["wallet"] += amount
+            if debt_paid:
+                result += f"\n⌬ {debt_paid:,} went toward your debt."
         elif p_total > d_total:
+            debt_paid, to_wallet = apply_earnings(user_id, data, amount)
             result = f"◈ winner. you won **⌬ {amount}** cores."
-            data[user_id]["wallet"] += amount
+            if debt_paid:
+                result += f"\n⌬ {debt_paid:,} went toward your debt."
         elif p_total < d_total:
+            apply_loss(user_id, data, amount)
+            debt = data[user_id]["debt"]
             result = f"⊘ dealer wins. you lost **⌬ {amount}** cores."
-            data[user_id]["wallet"] -= amount
+            if debt > 0:
+                result += f"\n⌬ {debt:,} now in debt."
         else:
             result = "◈ push. your cores were returned."
 
