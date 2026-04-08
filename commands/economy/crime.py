@@ -1,7 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown
+from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown, apply_loss, apply_earnings, debt_prompt
 
 ROB_COOLDOWN = 300
 CRIME_COOLDOWN = 600
@@ -25,6 +25,8 @@ class Crime(commands.Cog):
         data = open_account(ctx.author.id, data)
         data = open_account(member.id, data)
 
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         remaining = get_cooldown(ctx.author.id, data, "last_rob", ROB_COOLDOWN)
         if remaining:
             min = round(remaining / 60, 1)
@@ -43,21 +45,22 @@ class Crime(commands.Cog):
         if random.random() < 0.45:
             stolen = random.randint(50, data[victim_id]["wallet"])
             data[victim_id]["wallet"] -= stolen
-            data[robber_id]["wallet"] += stolen
+            debt_paid, to_wallet = apply_earnings(robber_id, data, stolen)
             save_bank(data)
-            embed = discord.Embed(
-                description=f"╼ **theft success** ╾\nyou stole **⌬ {stolen:,}** from {member.display_name.lower()}.",
-                color=0x57f287
-            )
+            desc = f"╼ **theft success** ╾\nyou stole **⌬ {stolen:,}** from {member.display_name.lower()}."
+            if debt_paid:
+                desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            embed = discord.Embed(description=desc, color=0x57f287)
         else:
             fine = random.randint(100, 500)
-            data[robber_id]["wallet"] = max(0, data[robber_id]["wallet"] - fine)
+            apply_loss(robber_id, data, fine)
             data[victim_id]["wallet"] += fine
             save_bank(data)
-            embed = discord.Embed(
-                description=f"⊘ **caught**\nyou were caught and paid a fine of **⌬ {fine:,}** to {member.display_name.lower()}.",
-                color=0xff4500
-            )
+            debt = data[robber_id]["debt"]
+            desc = f"⊘ **caught**\nyou were caught and fined **⌬ {fine:,}** to {member.display_name.lower()}."
+            if debt > 0:
+                desc += f"\n⌬ {data[robber_id]['debt']:,} now in debt."
+            embed = discord.Embed(description=desc, color=0xff4500)
 
         await ctx.send(embed=embed)
 
@@ -66,6 +69,8 @@ class Crime(commands.Cog):
         data = load_bank()
         data = open_account(ctx.author.id, data)
         user_id = str(ctx.author.id)
+
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
 
         remaining = get_cooldown(ctx.author.id, data, "last_crime", CRIME_COOLDOWN)
         if remaining:
@@ -78,21 +83,22 @@ class Crime(commands.Cog):
 
         if random.random() < 0.4:
             fine = random.randint(100, 600)
-            data[user_id]["wallet"] = max(0, data[user_id]["wallet"] - fine)
+            apply_loss(user_id, data, fine)
             save_bank(data)
-            embed = discord.Embed(
-                description=f"⊘ **busted**\ncaught in the act. fined **⌬ {fine:,}** cores.",
-                color=0xff4500
-            )
+            debt = data[user_id]["debt"]
+            desc = f"⊘ **busted**\ncaught in the act. fined **⌬ {fine:,}** cores."
+            if debt > 0:
+                desc += f"\n⌬ {debt:,} now in debt."
+            embed = discord.Embed(description=desc, color=0xff4500)
         else:
             earnings = random.randint(200, 900)
-            data[user_id]["wallet"] += earnings
+            debt_paid, to_wallet = apply_earnings(user_id, data, earnings)
             save_bank(data)
             act = random.choice(CRIMES)
-            embed = discord.Embed(
-                description=f"╼ **crime pays** ╾\nyou {act} and pocketed **⌬ {earnings:,}** cores.",
-                color=0x57f287
-            )
+            desc = f"╼ **crime pays** ╾\nyou {act} and pocketed **⌬ {earnings:,}** cores."
+            if debt_paid:
+                desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            embed = discord.Embed(description=desc, color=0x57f287)
 
         await ctx.send(embed=embed)
 

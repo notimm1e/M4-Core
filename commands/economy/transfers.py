@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account
+from commands.economy.economy_base import load_bank, save_bank, open_account, debt_prompt
 
 class Transfers(commands.Cog):
     def __init__(self, bot):
@@ -12,7 +12,9 @@ class Transfers(commands.Cog):
         data = load_bank()
         data = open_account(ctx.author.id, data)
         user_id = str(ctx.author.id)
-        
+
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         wallet = data[user_id]["wallet"]
         if amount.lower() == "all": amount = wallet
         else: amount = int(amount)
@@ -30,7 +32,9 @@ class Transfers(commands.Cog):
         data = load_bank()
         data = open_account(ctx.author.id, data)
         user_id = str(ctx.author.id)
-        
+
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         bank = data[user_id]["bank"]
         if amount.lower() == "all": amount = bank
         else: amount = int(amount)
@@ -47,14 +51,16 @@ class Transfers(commands.Cog):
     async def pay(self, ctx, member: discord.Member, amount: int):
         if member.id == ctx.author.id:
             return await ctx.send("⊘ you cannot pay yourself.")
-        
+
         if amount > self.limit:
             return await ctx.send(embed=discord.Embed(description=f"⊘ transfer limit is **⌬ {self.limit:,}**.", color=0xff4500))
 
         data = load_bank()
         data = open_account(ctx.author.id, data)
         data = open_account(member.id, data)
-        
+
+        data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
+
         sender_id = str(ctx.author.id)
         rec_id = str(member.id)
 
