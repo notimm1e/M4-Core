@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, debt_prompt
 
+AUTHORIZED = {779653730978103306, 500683600614785025}
+WALLET_FLOOR = 250
+
 class Transfers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -16,11 +19,24 @@ class Transfers(commands.Cog):
         data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
 
         wallet = data[user_id]["wallet"]
-        if amount.lower() == "all": amount = wallet
-        else: amount = int(amount)
+        available = max(0, wallet - WALLET_FLOOR)
 
-        if amount > wallet or amount <= 0:
-            return await ctx.send(embed=discord.Embed(description="⊘ insufficient wallet cores.", color=0xff4500))
+        if amount.lower() == "all":
+            amount = available
+        else:
+            amount = int(amount)
+
+        if amount <= 0:
+            return await ctx.send(embed=discord.Embed(
+                description=f"⊘ you must keep at least **⌬ {WALLET_FLOOR:,}** in your wallet.",
+                color=0xff4500
+            ))
+
+        if amount > available:
+            return await ctx.send(embed=discord.Embed(
+                description=f"⊘ you can only deposit **⌬ {available:,}** — must keep **⌬ {WALLET_FLOOR:,}** in wallet.",
+                color=0xff4500
+            ))
 
         data[user_id]["wallet"] -= amount
         data[user_id]["bank"] += amount
@@ -36,8 +52,10 @@ class Transfers(commands.Cog):
         data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
 
         bank = data[user_id]["bank"]
-        if amount.lower() == "all": amount = bank
-        else: amount = int(amount)
+        if amount.lower() == "all":
+            amount = bank
+        else:
+            amount = int(amount)
 
         if amount > bank or amount <= 0:
             return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores.", color=0xff4500))
@@ -64,18 +82,129 @@ class Transfers(commands.Cog):
         sender_id = str(ctx.author.id)
         rec_id = str(member.id)
 
-        if amount > data[sender_id]["wallet"] or amount <= 0:
+        if amount <= 0 or amount > data[sender_id]["wallet"]:
             return await ctx.send(embed=discord.Embed(description="⊘ insufficient cores in wallet.", color=0xff4500))
 
         data[sender_id]["wallet"] -= amount
         data[rec_id]["wallet"] += amount
         save_bank(data)
 
-        embed = discord.Embed(
+        await ctx.send(embed=discord.Embed(
             description=f"╼ **transfer complete** ╾\n\nsent **⌬ {amount:,}** to {member.display_name.lower()}.",
             color=0x2b2d31
-        )
-        await ctx.send(embed=embed)
+        ))
+
+    @commands.group(name="sudo", invoke_without_command=True)
+    async def sudo(self, ctx):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+        await ctx.send(embed=discord.Embed(
+            description="usage: `!sudo transfer/deduct/set/wipe`",
+            color=0x2b2d31
+        ))
+
+    @sudo.command(name="transfer")
+    async def sudo_transfer(self, ctx, member: discord.Member, amount: int, account: str):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+
+        account = account.lower()
+        if account not in ("bank", "wallet"):
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+
+        data = load_bank()
+        data = open_account(member.id, data)
+        uid = str(member.id)
+
+        if account == "bank":
+            # wallet → bank
+            if data[uid]["wallet"] < amount:
+                return await ctx.send(embed=discord.Embed(description="⊘ insufficient wallet cores.", color=0xff4500))
+            data[uid]["wallet"] -= amount
+            data[uid]["bank"] += amount
+            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s wallet → bank."
+        else:
+            # bank → wallet
+            if data[uid]["bank"] < amount:
+                return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores.", color=0xff4500))
+            data[uid]["bank"] -= amount
+            data[uid]["wallet"] += amount
+            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s bank → wallet."
+
+        save_bank(data)
+        await ctx.send(embed=discord.Embed(description=desc, color=0x57f287))
+
+    @sudo.command(name="deduct")
+    async def sudo_deduct(self, ctx, member: discord.Member, amount: int, account: str):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+
+        account = account.lower()
+        if account not in ("bank", "wallet"):
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+
+        data = load_bank()
+        data = open_account(member.id, data)
+        uid = str(member.id)
+
+        current = data[uid][account]
+        deducted = min(amount, current)
+        data[uid][account] = max(0, current - amount)
+        save_bank(data)
+
+        await ctx.send(embed=discord.Embed(
+            description=f"◈ deducted **⌬ {deducted:,}** from {member.display_name.lower()}'s {account}.",
+            color=0x57f287
+        ))
+
+    @sudo.command(name="set")
+    async def sudo_set(self, ctx, member: discord.Member, amount: int, account: str, flag: str = ""):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+
+        if flag != "--force":
+            return await ctx.send(embed=discord.Embed(
+                description="⊘ append `--force` to confirm.",
+                color=0xff4500
+            ))
+
+        account = account.lower()
+        if account not in ("bank", "wallet"):
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+
+        data = load_bank()
+        data = open_account(member.id, data)
+        uid = str(member.id)
+
+        data[uid][account] = amount
+        save_bank(data)
+
+        await ctx.send(embed=discord.Embed(
+            description=f"◈ set {member.display_name.lower()}'s {account} to **⌬ {amount:,}**.",
+            color=0x57f287
+        ))
+
+    @sudo.command(name="wipe")
+    async def sudo_wipe(self, ctx, member: discord.Member):
+        if ctx.author.id not in AUTHORIZED:
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+
+        data = load_bank()
+        uid = str(member.id)
+
+        if uid not in data:
+            return await ctx.send(embed=discord.Embed(
+                description="⊘ that user has no economy data.",
+                color=0xff4500
+            ))
+
+        del data[uid]
+        save_bank(data)
+
+        await ctx.send(embed=discord.Embed(
+            description=f"◈ wiped all economy data for {member.display_name.lower()}.",
+            color=0x57f287
+        ))
 
 async def setup(bot):
     await bot.add_cog(Transfers(bot))
