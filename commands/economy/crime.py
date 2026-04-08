@@ -3,13 +3,13 @@ import random
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown, apply_loss, apply_earnings, debt_prompt
 
-ROB_COOLDOWN = 300
-CRIME_COOLDOWN = 600
+ROB_COOLDOWN = 7200
+CRIME_COOLDOWN = 3600
 
 CRIMES = [
     "hacked a government server", "pickpocketed a tourist", "sold knockoff merch",
     "ran a pyramid scheme", "shoplifted a vending machine", "forged a document",
-    "jaywalked aggressively", "smuggled rare cheese", "sold cocaine", "took an assassin job", "spiked a bar drink", "robbed a bank",
+    "jaywalked aggressively", "smuggled rare cheese",
 ]
 
 class Crime(commands.Cog):
@@ -29,9 +29,9 @@ class Crime(commands.Cog):
 
         remaining = get_cooldown(ctx.author.id, data, "last_rob", ROB_COOLDOWN)
         if remaining:
-            min = round(remaining / 60, 1)
+            hrs = round(remaining / 3600, 1)
             return await ctx.send(embed=discord.Embed(
-                description=f"⧖ lay low for {min}m", color=0xff4500
+                description=f"⧖ lay low for {hrs}h", color=0xff4500
             ), ephemeral=True)
 
         victim_id = str(member.id)
@@ -43,7 +43,8 @@ class Crime(commands.Cog):
         set_cooldown(ctx.author.id, data, "last_rob")
 
         if random.random() < 0.45:
-            stolen = random.randint(50, data[victim_id]["wallet"])
+            max_steal = min(1000, int(data[victim_id]["wallet"] * 0.25))
+            stolen = random.randint(50, max(50, max_steal))
             data[victim_id]["wallet"] -= stolen
             debt_paid, to_wallet = apply_earnings(robber_id, data, stolen)
             save_bank(data)
