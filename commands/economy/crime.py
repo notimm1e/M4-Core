@@ -43,7 +43,8 @@ class Crime(commands.Cog):
         set_cooldown(ctx.author.id, data, "last_rob")
 
         if random.random() < 0.45:
-            stolen = random.randint(50, data[victim_id]["wallet"])
+            max_steal = min(1000, int(data[victim_id]["wallet"] * 0.25))
+            stolen = random.randint(50, max(50, max_steal))
             data[victim_id]["wallet"] -= stolen
             debt_paid, to_wallet = apply_earnings(robber_id, data, stolen)
             save_bank(data)
