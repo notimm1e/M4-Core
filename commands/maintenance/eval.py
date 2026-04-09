@@ -1,12 +1,28 @@
 import discord
 import asyncio
 import io
+import os
+import re
 import sys
 import traceback
 from discord.ext import commands
-from commands.admins_config import is_admin
 
 MAX_EMBED = 4000
+
+_ADMINS_FILE = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "admins.yaml")
+)
+
+def _is_admin_raw(user_id: int) -> bool:
+    try:
+        with open(_ADMINS_FILE, "r") as f:
+            for line in f:
+                m = re.match(r"^\s*-\s*(\d+)", line)
+                if m and int(m.group(1)) == user_id:
+                    return True
+    except OSError:
+        pass
+    return False
 
 def _truncate(text: str) -> str:
     if len(text) <= MAX_EMBED:
@@ -20,19 +36,16 @@ class Eval(commands.Cog):
 
     @commands.command(name="eval")
     async def eval_cmd(self, ctx, *, code: str):
-        if not is_admin(ctx.author.id):
+        if not _is_admin_raw(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         code = code.strip().strip("```").removeprefix("python").removeprefix("py").strip()
 
         msg = await ctx.send(embed=discord.Embed(description="⧖ running...", color=0x2b2d31))
 
-        stdout_buf = io.StringIO()
-        stderr_buf = io.StringIO()
         shell_out = ""
         py_error = ""
 
-        # Try as shell command first (pip install, ls, etc.)
         try:
             proc = await asyncio.create_subprocess_shell(
                 code,
@@ -46,11 +59,11 @@ class Eval(commands.Cog):
             shell_out = "⊘ timed out after 60s"
             success = False
         except Exception:
-            # Not a shell command — fall through to Python exec
             shell_out = None
 
         if shell_out is None:
-            # Execute as Python
+            stdout_buf = io.StringIO()
+            stderr_buf = io.StringIO()
             old_stdout, old_stderr = sys.stdout, sys.stderr
             sys.stdout, sys.stderr = stdout_buf, stderr_buf
             try:
