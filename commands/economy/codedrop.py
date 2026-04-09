@@ -36,9 +36,9 @@ class CodeDrop(commands.Cog):
 
         # 2. Generate Unique Code
         codes = load_codes()
-        code = generate_code()
+        code = generate_code().upper()
         while code in codes:
-            code = generate_code()
+            code = generate_code().upper()
 
         # 3. Setup Data with Expiry Timestamp
         amount = random.randint(250, 500)
