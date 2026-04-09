@@ -17,7 +17,6 @@ class help(commands.Cog):
             "`!ping` · check latency\n"
             "`!uptime` · runtime duration\n"
             "`!about` · bot information\n"
-            "`!say <msg>` · broadcast ⌠auth⌡\n"
             "`!help` · show this menu"
         ), inline=False)
 
@@ -31,24 +30,24 @@ class help(commands.Cog):
             "`!password [len]` · generate secure string\n"
             "`!dice [sides]` · roll a random die\n"
             "`!snipe` · last deleted message\n"
-            "`!editsnipe` · last edited message\n"
             "`!timer <sec> [label]` · countdown timer\n"
             "`!afk [reason]` · set afk status"
         ), inline=False)
 
         embed.add_field(name="◈ moderation", value=(
-            "`!purge <amt>` · clear logs ⌠perm⌡\n"
-            "`!warn <@user>` · issue strike ⌠perm⌡\n"
-            "`!warnings <@user>` · view strikes\n"
+            "`!purge <amt>` · clear messages ⌠perm⌡\n"
+            "`!warn <@user> [reason]` · issue strike ⌠perm⌡\n"
+            "`!warnings <@user>` · view strikes ⌠perm⌡\n"
             "`!rmwarn <@user> <idx>` · remove strike ⌠perm⌡\n"
-            "`!kick <@user>` · eject member ⌠perm⌡\n"
-            "`!ban <@user>` · blacklist user ⌠perm⌡\n"
-            "`!unban <id>` · lift blacklist ⌠perm⌡"
+            "`!kick <@user> [reason]` · eject member ⌠perm⌡\n"
+            "`!ban <@user> [reason]` · blacklist user ⌠perm⌡\n"
+            "`!unban <id> [reason]` · lift blacklist ⌠perm⌡"
         ), inline=False)
 
         embed.add_field(name="◈ economy", value=(
-            "`!bal` · check cores\n"
-            "`!dep/!with` · bank management\n"
+            "`!bal [@user]` · check cores\n"
+            "`!dep <amt>` · deposit to bank\n"
+            "`!with <amt>` · withdraw from bank\n"
             "`!pay <@user> <amt>` · transfer cores\n"
             "`!work` · labor shift ⧖\n"
             "`!beg` · request cores ⧖\n"
@@ -57,6 +56,7 @@ class help(commands.Cog):
             "`!crime` · commit a crime ⧖\n"
             "`!blackjack <amt>` · play blackjack\n"
             "`!plinko <amt>` · drop the ball\n"
+            "`!redeem <code>` · redeem a code\n"
             "`!lb` · richest users"
         ), inline=False)
 
@@ -72,11 +72,19 @@ class help(commands.Cog):
             "`!confess <msg>` · anonymous message"
         ), inline=False)
 
-        embed.add_field(name="◈ maintenance & events", value=(
-            "`!setwelcome <#ch>` · entry config ⌠perm⌡\n"
-            "`!pull [branch]` · github sync ⌠auth⌡\n"
-            "`!reload [cog]` · reload module ⌠auth⌡\n"
-            "`!restart` · reboot bot process ⌠auth⌡"
+        embed.add_field(name="◈ maintenance ⌠auth⌡", value=(
+            "`!eval <code>` · run code remotely\n"
+            "`!pull [branch]` · github sync\n"
+            "`!reloadall` · reload all cogs\n"
+            "`!restart` · reboot bot process\n"
+            "`!say <msg>` · send as bot\n"
+            "`!admin @user` · add admin\n"
+            "`!rmadmin @user` · remove admin\n"
+            "`!adminlist` · list admins\n"
+            "`!issuecode <code> <amt> [uses]` · create redeem code\n"
+            "`!revokecode <code>` · delete redeem code\n"
+            "`!setwelcome <#ch>` · set welcome channel\n"
+            "`!setconfessions <#ch>` · set confessions channel"
         ), inline=False)
 
         embed.set_footer(text="⧖ = cooldown · ⌬ = cores · ⌠perm⌡ = requires permission · ⌠auth⌡ = authorized only")
