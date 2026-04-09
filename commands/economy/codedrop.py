@@ -18,9 +18,11 @@ class CodeDrop(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.drop_loop.start()
+        self.cleanup_loop.start()
 
     def cog_unload(self):
         self.drop_loop.cancel()
+        self.cleanup_loop.cancel()
 
     @tasks.loop(minutes=DROP_INTERVAL)
     async def drop_loop(self):
@@ -96,8 +98,11 @@ class CodeDrop(commands.Cog):
             save_codes(codes)
 
     @drop_loop.before_loop
+    async def before_drop_loop(self):
+        await self.bot.wait_until_ready()
+
     @cleanup_loop.before_loop
-    async def before_loops(self):
+    async def before_cleanup_loop(self):
         await self.bot.wait_until_ready()
 
 async def setup(bot):

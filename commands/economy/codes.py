@@ -3,8 +3,7 @@ import json
 import os
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, apply_earnings
-
-AUTHORIZED = {779653730978103306, 500683600614785025}
+from commands.admins_config import is_admin
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CODES_FILE = os.path.join(BASE_DIR, "codes.json")
@@ -32,7 +31,7 @@ class Codes(commands.Cog):
 
     @commands.command(name="issuecode")
     async def issuecode(self, ctx, code: str, amount: int, uses: int = 1000):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(
                 description="⊘ unauthorized.", color=0xff4500
             ))
@@ -103,7 +102,7 @@ class Codes(commands.Cog):
 
     @commands.command(name="revokecode")
     async def revokecode(self, ctx, code: str):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(
                 description="⊘ unauthorized.", color=0xff4500
             ))

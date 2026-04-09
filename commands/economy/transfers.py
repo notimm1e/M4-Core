@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from commands.economy.economy_base import load_bank, save_bank, open_account, debt_prompt
-
-AUTHORIZED = {779653730978103306, 500683600614785025}
+from commands.admins_config import is_admin
 WALLET_FLOOR = 250
 
 class Transfers(commands.Cog):
@@ -96,7 +95,7 @@ class Transfers(commands.Cog):
 
     @commands.group(name="sudo", invoke_without_command=True)
     async def sudo(self, ctx):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
         await ctx.send(embed=discord.Embed(
             description="usage: `!sudo transfer/deduct/set/wipe`",
@@ -105,7 +104,7 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="transfer")
     async def sudo_transfer(self, ctx, member: discord.Member, amount: int, account: str):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         account = account.lower()
@@ -136,7 +135,7 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="deduct")
     async def sudo_deduct(self, ctx, member: discord.Member, amount: int, account: str):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         account = account.lower()
@@ -159,7 +158,7 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="set")
     async def sudo_set(self, ctx, member: discord.Member, amount: int, account: str, flag: str = ""):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         if flag != "--force":
@@ -186,7 +185,7 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="wipe")
     async def sudo_wipe(self, ctx, member: discord.Member):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         data = load_bank()

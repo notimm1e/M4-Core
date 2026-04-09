@@ -2,8 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import os
-
-AUTHORIZED = {779653730978103306, 500683600614785025}
+from commands.admins_config import is_admin
 
 class pull(commands.Cog):
     def __init__(self, bot):
@@ -31,7 +30,7 @@ class pull(commands.Cog):
 
     @commands.command(name="pull")
     async def pull(self, ctx, branch: str = "canary"):
-        if ctx.author.id not in AUTHORIZED:
+        if not is_admin(ctx.author.id):
             return
 
         branch = branch.lower()
