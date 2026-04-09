@@ -73,6 +73,7 @@ class hack(commands.Cog):
 
     @hack.error
     async def hack_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(title="✖ missing target", description="usage: `!hack @member`", color=discord.Color.red()))
 

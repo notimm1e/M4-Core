@@ -26,6 +26,7 @@ class ship(commands.Cog):
 
     @ship.error
     async def ship_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(title="✖ missing members", description="usage: `!ship @user1 @user2`", color=discord.Color.red()))
 

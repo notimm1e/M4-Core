@@ -62,6 +62,7 @@ class timer(commands.Cog):
 
     @timer.error
     async def timer_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(title="✖ missing duration", description="usage: `!timer <seconds> [label]`", color=discord.Color.red()))
         elif isinstance(error, commands.BadArgument):

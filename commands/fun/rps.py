@@ -33,6 +33,7 @@ class rps(commands.Cog):
 
     @rps.error
     async def rps_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(title="✖ missing choice", description="usage: `!rps <rock/paper/scissors>`", color=discord.Color.red()))
 

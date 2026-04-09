@@ -25,6 +25,7 @@ class poll(commands.Cog):
 
     @poll.error
     async def poll_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(
                 title="✖ missing question",

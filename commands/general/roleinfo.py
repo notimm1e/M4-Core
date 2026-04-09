@@ -26,6 +26,7 @@ class roleinfo(commands.Cog):
 
     @roleinfo.error
     async def roleinfo_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(
                 title="✖ missing role",

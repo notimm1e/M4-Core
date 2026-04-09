@@ -70,10 +70,5 @@ class impostor(commands.Cog):
         result_embed.set_footer(text="scan powered by m4-core anomaly engine")
         await msg.edit(embed=result_embed)
 
-    @impostor.error
-    async def impostor_error(self, ctx, error):
-        if isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(impostor(bot))

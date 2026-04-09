@@ -23,6 +23,7 @@ class eightball(commands.Cog):
 
     @eightball.error
     async def eightball_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(title="✖ missing question", description="usage: `!8ball <question>`", color=discord.Color.red()))
 

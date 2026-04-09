@@ -37,6 +37,8 @@ class MyBot(commands.Bot):
         print('------')
 
     async def on_command_error(self, ctx, error):
+        if hasattr(error, 'handled'):
+            return
         if isinstance(error, commands.CommandNotFound):
             await ctx.send(embed=discord.Embed(
                 title="✖ unknown command",
@@ -62,7 +64,7 @@ class MyBot(commands.Bot):
                 color=discord.Color.red()
             ))
         else:
-            print(f"error: {error}")
+            print(f"unhandled error in {ctx.command}: {error}")
 
 bot = MyBot()
 bot.run(TOKEN)

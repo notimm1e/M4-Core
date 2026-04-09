@@ -43,17 +43,5 @@ class ban(commands.Cog):
         except discord.NotFound:
             await ctx.send(embed=discord.Embed(title="✖ not found", description="that user isn't banned or doesn't exist.", color=discord.Color.red()))
 
-    @ban.error
-    async def ban_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `ban members` to use this.", color=discord.Color.red()))
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
-    @unban.error
-    async def unban_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `ban members` to use this.", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(ban(bot))

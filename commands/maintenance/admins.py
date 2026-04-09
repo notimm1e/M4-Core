@@ -70,6 +70,7 @@ class Admins(commands.Cog):
     @add_admin.error
     @remove_admin.error
     async def admin_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MemberNotFound):
             await ctx.send(embed=discord.Embed(description="⊘ member not found.", color=0xff4500))
         elif isinstance(error, commands.MissingRequiredArgument):

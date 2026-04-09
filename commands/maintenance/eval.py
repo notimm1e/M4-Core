@@ -14,6 +14,7 @@ _ADMINS_FILE = os.path.normpath(
 )
 
 def _is_admin_raw(user_id: int) -> bool:
+    """Read admins.yaml with stdlib only — no pyyaml needed."""
     try:
         with open(_ADMINS_FILE, "r") as f:
             for line in f:
@@ -43,9 +44,12 @@ class Eval(commands.Cog):
 
         msg = await ctx.send(embed=discord.Embed(description="⧖ running...", color=0x2b2d31))
 
+        stdout_buf = io.StringIO()
+        stderr_buf = io.StringIO()
         shell_out = ""
         py_error = ""
 
+        # Try as shell command first (pip install, ls, etc.)
         try:
             proc = await asyncio.create_subprocess_shell(
                 code,
@@ -62,8 +66,6 @@ class Eval(commands.Cog):
             shell_out = None
 
         if shell_out is None:
-            stdout_buf = io.StringIO()
-            stderr_buf = io.StringIO()
             old_stdout, old_stderr = sys.stdout, sys.stderr
             sys.stdout, sys.stderr = stdout_buf, stderr_buf
             try:
@@ -91,6 +93,7 @@ class Eval(commands.Cog):
 
     @eval_cmd.error
     async def eval_error(self, ctx, error):
+        error.handled = True
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(embed=discord.Embed(description="⊘ usage: `!eval <code or shell command>`", color=0xff4500))
 

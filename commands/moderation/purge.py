@@ -65,14 +65,5 @@ class purge(commands.Cog):
                 if msg.attachments:
                     f.write(f"   files: {[a.url for a in msg.attachments]}\n")
 
-    @purge.error
-    async def purge_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(
-                title="✖ missing permissions",
-                description="you don't have permission to use this command.",
-                color=discord.Color.red()
-            ))
-
 async def setup(bot):
     await bot.add_cog(purge(bot))

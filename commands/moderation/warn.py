@@ -123,28 +123,15 @@ class warn(commands.Cog):
             color=discord.Color.green()
         ))
 
-    @warn.error
-    async def warn_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `moderate members` to warn.", color=discord.Color.red()))
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
-    @warnings.error
-    async def warnings_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `moderate members` to view warnings.", color=discord.Color.red()))
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
     @rmwarn.error
     async def rmwarn_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `moderate members` to remove warnings.", color=discord.Color.red()))
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-        elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(title="✖ missing argument", description="usage: `!rmwarn @member <index>`\nuse `!warnings @member` to see indices.", color=discord.Color.red()))
+        error.handled = True
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(embed=discord.Embed(
+                title="✖ missing argument",
+                description="usage: `!rmwarn @member <index>`\nuse `!warnings @member` to see indices.",
+                color=discord.Color.red()
+            ))
 
 async def setup(bot):
     await bot.add_cog(warn(bot))

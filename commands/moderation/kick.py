@@ -29,12 +29,5 @@ class kick(commands.Cog):
             color=discord.Color.green()
         ))
 
-    @kick.error
-    async def kick_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send(embed=discord.Embed(title="✖ missing permissions", description="you need `kick members` to use this.", color=discord.Color.red()))
-        elif isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(kick(bot))

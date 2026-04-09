@@ -86,10 +86,5 @@ class dumbass(commands.Cog):
         embed.set_footer(text=f"{seal} · issued by {ctx.author.display_name}")
         await ctx.send(embed=embed)
 
-    @dumbass.error
-    async def dumbass_error(self, ctx, error):
-        if isinstance(error, commands.MemberNotFound):
-            await ctx.send(embed=discord.Embed(title="✖ member not found", description="that member doesn't exist.", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(dumbass(bot))
