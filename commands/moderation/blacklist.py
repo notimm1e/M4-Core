@@ -1,4 +1,3 @@
-commands/moderation/blacklist.py
 import discord
 from discord.ext import commands
 from commands.admins_config import is_admin
