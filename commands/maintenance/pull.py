@@ -9,7 +9,8 @@ class pull(commands.Cog):
         self.bot = bot
         self.excluded_modules = {
             "commands.economy.economy_base",
-            "commands.admins_config"
+            "commands.admins_config",
+            "commands.blacklist_config"
         }
 
     async def reload_all_extensions(self):

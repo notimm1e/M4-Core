@@ -22,7 +22,8 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         excluded_modules = {
             "commands.economy.economy_base",
-            "commands.admins_config"
+            "commands.admins_config",
+            "commands.blacklist_config"
         }
         
         for root, dirs, files in os.walk("./commands"):
