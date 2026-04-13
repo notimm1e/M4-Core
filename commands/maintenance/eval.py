@@ -1,0 +1,101 @@
+import discord
+import asyncio
+import io
+import os
+import re
+import sys
+import traceback
+from discord.ext import commands
+
+MAX_EMBED = 4000
+
+_ADMINS_FILE = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "admins.yaml")
+)
+
+def _is_admin_raw(user_id: int) -> bool:
+    """Read admins.yaml with stdlib only — no pyyaml needed."""
+    try:
+        with open(_ADMINS_FILE, "r") as f:
+            for line in f:
+                m = re.match(r"^\s*-\s*(\d+)", line)
+                if m and int(m.group(1)) == user_id:
+                    return True
+    except OSError:
+        pass
+    return False
+
+def _truncate(text: str) -> str:
+    if len(text) <= MAX_EMBED:
+        return text
+    half = (MAX_EMBED - 20) // 2
+    return text[:half] + "\n...[truncated]...\n" + text[-half:]
+
+class Eval(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(name="eval")
+    async def eval_cmd(self, ctx, *, code: str):
+        if not _is_admin_raw(ctx.author.id):
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+
+        code = code.strip().strip("```").removeprefix("python").removeprefix("py").strip()
+
+        msg = await ctx.send(embed=discord.Embed(description="⧖ running...", color=0x2b2d31))
+
+        stdout_buf = io.StringIO()
+        stderr_buf = io.StringIO()
+        shell_out = ""
+        py_error = ""
+
+        # Try as shell command first (pip install, ls, etc.)
+        try:
+            proc = await asyncio.create_subprocess_shell(
+                code,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
+            shell_out = (stdout.decode() + stderr.decode()).strip()
+            success = proc.returncode == 0
+        except asyncio.TimeoutError:
+            shell_out = "⊘ timed out after 60s"
+            success = False
+        except Exception:
+            shell_out = None
+
+        if shell_out is None:
+            old_stdout, old_stderr = sys.stdout, sys.stderr
+            sys.stdout, sys.stderr = stdout_buf, stderr_buf
+            try:
+                exec(compile(code, "<eval>", "exec"), {"bot": self.bot, "ctx": ctx, "discord": discord})
+                success = True
+            except Exception:
+                py_error = traceback.format_exc()
+                success = False
+            finally:
+                sys.stdout, sys.stderr = old_stdout, old_stderr
+
+            shell_out = (stdout_buf.getvalue() + stderr_buf.getvalue()).strip()
+            if py_error:
+                shell_out = (shell_out + "\n" + py_error).strip()
+
+        output = _truncate(shell_out) if shell_out else "*(no output)*"
+        color = 0x57f287 if success else 0xff4500
+
+        embed = discord.Embed(color=color)
+        embed.add_field(name="◈ input", value=f"```\n{code[:900]}\n```", inline=False)
+        embed.add_field(name="◈ output", value=f"```\n{output}\n```", inline=False)
+        embed.set_footer(text=f"exit {'0' if success else '1'}")
+
+        await msg.edit(embed=embed)
+
+    @eval_cmd.error
+    async def eval_error(self, ctx, error):
+        error.handled = True
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(embed=discord.Embed(description="⊘ usage: `!eval <code or shell command>`", color=0xff4500))
+
+async def setup(bot):
+    await bot.add_cog(Eval(bot))
