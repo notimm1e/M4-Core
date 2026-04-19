@@ -14,8 +14,9 @@ class Weather(commands.Cog):
         if not api_key:
             return await ctx.send(embed=discord.Embed(description="✖ OPENWEATHER_KEY not set in .env.", color=0xff4500))
 
+        city_encoded = city.replace(" ", "+")
         proc = await asyncio.create_subprocess_shell(
-            f'curl -s "https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"',
+            f'curl -s "https://api.openweathermap.org/data/2.5/weather?q={city_encoded}&appid={api_key}&units=metric"',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
