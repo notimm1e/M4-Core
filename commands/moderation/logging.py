@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from datetime import timezone
 
 LOG_CHANNEL = 1495397971783712839
 
@@ -13,162 +12,178 @@ class Logger(commands.Cog):
         if ch:
             await ch.send(embed=embed)
 
-    # ── messages ──────────────────────────────────────────────
+    # ── bulk delete ─────────────────────────────
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
-        if message.author.bot or not message.guild:
+    async def on_bulk_message_delete(self, messages):
+        if not messages:
             return
-        embed = discord.Embed(
-            title="🗑 message deleted",
-            color=0xff4500,
-            timestamp=discord.utils.utcnow()
-        )
-        embed.add_field(name="author", value=f"{message.author.mention} (`{message.author.id}`)", inline=True)
-        embed.add_field(name="channel", value=message.channel.mention, inline=True)
-        if message.content:
-            embed.add_field(name="content", value=message.content[:1024], inline=False)
-        if message.attachments:
-            embed.add_field(name="attachments", value="\n".join(a.url for a in message.attachments), inline=False)
-        embed.set_footer(text=f"message id: {message.id}")
-        await self.log(message.guild, embed)
+        embed = discord.Embed(title="🧹 bulk delete", color=0xff4500, timestamp=discord.utils.utcnow())
+        embed.add_field(name="count", value=str(len(messages)))
+        embed.add_field(name="channel", value=messages[0].channel.mention)
+        await self.log(messages[0].guild, embed)
+
+    # ── roles ───────────────────────────────────
 
     @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if before.author.bot or not before.guild or before.content == after.content:
+    async def on_guild_role_create(self, role):
+        embed = discord.Embed(title="➕ role created", color=0x57f287, timestamp=discord.utils.utcnow())
+        embed.add_field(name="role", value=role.mention)
+        await self.log(role.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_guild_role_delete(self, role):
+        embed = discord.Embed(title="➖ role deleted", color=0xff4500, timestamp=discord.utils.utcnow())
+        embed.add_field(name="role", value=role.name)
+        await self.log(role.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_guild_role_update(self, before, after):
+        embed = discord.Embed(title="✏ role updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
+        if before.name != after.name:
+            embed.add_field(name="name", value=f"{before.name} → {after.name}", inline=False)
+        if before.permissions != after.permissions:
+            embed.add_field(name="permissions changed", value="yes", inline=False)
+        await self.log(after.guild, embed)
+
+    # ── voice ───────────────────────────────────
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if before.channel == after.channel:
             return
-        embed = discord.Embed(
-            title="✏ message edited",
-            color=0xf1c40f,
-            timestamp=discord.utils.utcnow()
-        )
-        embed.add_field(name="author", value=f"{before.author.mention} (`{before.author.id}`)", inline=True)
-        embed.add_field(name="channel", value=before.channel.mention, inline=True)
-        embed.add_field(name="before", value=before.content[:512] or "*(empty)*", inline=False)
-        embed.add_field(name="after", value=after.content[:512] or "*(empty)*", inline=False)
-        embed.add_field(name="jump", value=f"[view]({after.jump_url})", inline=True)
-        embed.set_footer(text=f"message id: {before.id}")
-        await self.log(before.guild, embed)
 
-    # ── members ───────────────────────────────────────────────
+        embed = discord.Embed(color=0x5865f2, timestamp=discord.utils.utcnow())
+        embed.add_field(name="user", value=member.mention)
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        embed = discord.Embed(
-            title="📥 member joined",
-            color=0x57f287,
-            timestamp=discord.utils.utcnow()
-        )
-        embed.set_thumbnail(url=member.display_avatar.url)
-        embed.add_field(name="user", value=f"{member.mention} (`{member.id}`)", inline=True)
-        embed.add_field(name="account created", value=discord.utils.format_dt(member.created_at, "R"), inline=True)
-        embed.set_footer(text=f"member count: {member.guild.member_count}")
+        if before.channel is None:
+            embed.title = "🔊 joined voice"
+            embed.add_field(name="channel", value=after.channel.mention)
+        elif after.channel is None:
+            embed.title = "🔇 left voice"
+            embed.add_field(name="channel", value=before.channel.mention)
+        else:
+            embed.title = "🔁 moved voice"
+            embed.add_field(name="from", value=before.channel.mention)
+            embed.add_field(name="to", value=after.channel.mention)
+
         await self.log(member.guild, embed)
 
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        embed = discord.Embed(
-            title="📤 member left",
-            color=0xff4500,
-            timestamp=discord.utils.utcnow()
-        )
-        embed.set_thumbnail(url=member.display_avatar.url)
-        embed.add_field(name="user", value=f"{member.mention} (`{member.id}`)", inline=True)
-        roles = [r.mention for r in member.roles if r != member.guild.default_role]
-        if roles:
-            embed.add_field(name="roles", value=" ".join(roles)[:1024], inline=False)
-        embed.set_footer(text=f"member count: {member.guild.member_count}")
-        await self.log(member.guild, embed)
+    # ── avatar change ───────────────────────────
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if before.roles == after.roles and before.nick == after.nick:
-            return
+        if before.display_avatar != after.display_avatar:
+            embed = discord.Embed(title="🖼 avatar changed", color=0x5865f2, timestamp=discord.utils.utcnow())
+            embed.add_field(name="user", value=after.mention)
+            embed.set_thumbnail(url=after.display_avatar.url)
+            await self.log(after.guild, embed)
 
+    # ── permissions ─────────────────────────────
+
+    @commands.Cog.listener()
+    async def on_guild_channel_update(self, before, after):
+        if before.overwrites != after.overwrites:
+            embed = discord.Embed(title="🔐 permissions updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
+            embed.add_field(name="channel", value=after.mention)
+            await self.log(after.guild, embed)
+
+    # ── pins ────────────────────────────────────
+
+    @commands.Cog.listener()
+    async def on_guild_channel_pins_update(self, channel, last_pin):
+        embed = discord.Embed(title="📌 pins updated", color=0x5865f2, timestamp=discord.utils.utcnow())
+        embed.add_field(name="channel", value=channel.mention)
+        await self.log(channel.guild, embed)
+
+    # ── emojis / stickers ───────────────────────
+
+    @commands.Cog.listener()
+    async def on_guild_emojis_update(self, guild, before, after):
         embed = discord.Embed(
-            title="👤 member updated",
+            title="emoji updated",
             color=0x5865f2,
             timestamp=discord.utils.utcnow()
         )
-        embed.add_field(name="user", value=f"{after.mention} (`{after.id}`)", inline=False)
-
-        if before.nick != after.nick:
-            embed.add_field(name="nickname", value=f"`{before.nick}` → `{after.nick}`", inline=False)
-
-        added = [r for r in after.roles if r not in before.roles]
-        removed = [r for r in before.roles if r not in after.roles]
-        if added:
-            embed.add_field(name="roles added", value=" ".join(r.mention for r in added), inline=False)
-        if removed:
-            embed.add_field(name="roles removed", value=" ".join(r.mention for r in removed), inline=False)
-
-        await self.log(after.guild, embed)
-
-    # ── moderation (audit log) ────────────────────────────────
+        embed.add_field(name="before", value=str(len(before)))
+        embed.add_field(name="after", value=str(len(after)))
+        await self.log(guild, embed)
 
     @commands.Cog.listener()
-    async def on_audit_log_entry_create(self, entry):
-        guild = entry.guild
-        action = entry.action
-        user = entry.user
-        target = entry.target
+    async def on_guild_stickers_update(self, guild, before, after):
+        embed = discord.Embed(title="sticker updated", color=0x5865f2, timestamp=discord.utils.utcnow())
+        embed.add_field(name="count", value=f"{len(before)} → {len(after)}")
+        await self.log(guild, embed)
 
-        embed = None
-
-        if action == discord.AuditLogAction.ban:
-            embed = discord.Embed(title="🔨 member banned", color=0xff4500, timestamp=discord.utils.utcnow())
-            embed.add_field(name="user", value=f"{target.mention} (`{target.id}`)", inline=True)
-            embed.add_field(name="by", value=f"{user.mention}", inline=True)
-            embed.add_field(name="reason", value=entry.reason or "no reason provided", inline=False)
-
-        elif action == discord.AuditLogAction.unban:
-            embed = discord.Embed(title="✅ member unbanned", color=0x57f287, timestamp=discord.utils.utcnow())
-            embed.add_field(name="user", value=f"{target.mention} (`{target.id}`)", inline=True)
-            embed.add_field(name="by", value=f"{user.mention}", inline=True)
-
-        elif action == discord.AuditLogAction.kick:
-            embed = discord.Embed(title="👢 member kicked", color=0xf1c40f, timestamp=discord.utils.utcnow())
-            embed.add_field(name="user", value=f"{target.mention} (`{target.id}`)", inline=True)
-            embed.add_field(name="by", value=f"{user.mention}", inline=True)
-            embed.add_field(name="reason", value=entry.reason or "no reason provided", inline=False)
-
-        elif action == discord.AuditLogAction.member_update:
-            if hasattr(entry.changes, "timed_out_until"):
-                timed_out = entry.changes.after.timed_out_until
-                if timed_out:
-                    embed = discord.Embed(title="⏱ member timed out", color=0xf1c40f, timestamp=discord.utils.utcnow())
-                    embed.add_field(name="user", value=f"{target.mention} (`{target.id}`)", inline=True)
-                    embed.add_field(name="by", value=f"{user.mention}", inline=True)
-                    embed.add_field(name="until", value=discord.utils.format_dt(timed_out, "F"), inline=False)
-                    embed.add_field(name="reason", value=entry.reason or "no reason provided", inline=False)
-                else:
-                    embed = discord.Embed(title="✅ timeout removed", color=0x57f287, timestamp=discord.utils.utcnow())
-                    embed.add_field(name="user", value=f"{target.mention} (`{target.id}`)", inline=True)
-                    embed.add_field(name="by", value=f"{user.mention}", inline=True)
-
-        elif action == discord.AuditLogAction.channel_update:
-            embed = discord.Embed(title="📝 channel updated", color=0x5865f2, timestamp=discord.utils.utcnow())
-            embed.add_field(name="channel", value=getattr(target, "mention", str(target)), inline=True)
-            embed.add_field(name="by", value=f"{user.mention}", inline=True)
-
-        if embed:
-            embed.set_footer(text=f"by {user} ({user.id})")
-            await self.log(guild, embed)
-
-    # ── channels ──────────────────────────────────────────────
+    # ── threads ─────────────────────────────────
 
     @commands.Cog.listener()
-    async def on_guild_channel_create(self, channel):
-        embed = discord.Embed(title="➕ channel created", color=0x57f287, timestamp=discord.utils.utcnow())
-        embed.add_field(name="name", value=channel.mention, inline=True)
-        embed.add_field(name="type", value=str(channel.type), inline=True)
+    async def on_thread_create(self, thread):
+        embed = discord.Embed(title="🧵 thread created", color=0x57f287, timestamp=discord.utils.utcnow())
+        embed.add_field(name="thread", value=thread.mention)
+        await self.log(thread.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_thread_delete(self, thread):
+        embed = discord.Embed(title="🧵 thread deleted", color=0xff4500, timestamp=discord.utils.utcnow())
+        embed.add_field(name="name", value=thread.name)
+        await self.log(thread.guild, embed)
+
+    # ── webhooks ────────────────────────────────
+
+    @commands.Cog.listener()
+    async def on_webhooks_update(self, channel):
+        embed = discord.Embed(title="🪝 webhooks updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
+        embed.add_field(name="channel", value=channel.mention)
         await self.log(channel.guild, embed)
 
+    # ── integrations ────────────────────────────
+
     @commands.Cog.listener()
-    async def on_guild_channel_delete(self, channel):
-        embed = discord.Embed(title="➖ channel deleted", color=0xff4500, timestamp=discord.utils.utcnow())
-        embed.add_field(name="name", value=f"`#{channel.name}`", inline=True)
-        embed.add_field(name="type", value=str(channel.type), inline=True)
+    async def on_integration_create(self, integration):
+        embed = discord.Embed(title="➕ integration added", color=0x57f287)
+        await self.log(integration.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_integration_delete(self, integration):
+        embed = discord.Embed(title="➖ integration removed", color=0xff4500)
+        await self.log(integration.guild, embed)
+
+    # ── stage instances ─────────────────────────
+
+    @commands.Cog.listener()
+    async def on_stage_instance_create(self, stage):
+        embed = discord.Embed(title="🎤 stage started", color=0x57f287)
+        await self.log(stage.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_stage_instance_delete(self, stage):
+        embed = discord.Embed(title="🎤 stage ended", color=0xff4500)
+        await self.log(stage.guild, embed)
+
+    # ── invites ─────────────────────────────────
+
+    @commands.Cog.listener()
+    async def on_invite_create(self, invite):
+        embed = discord.Embed(title="➕ invite created", color=0x57f287)
+        embed.add_field(name="code", value=invite.code)
+        await self.log(invite.guild, embed)
+
+    @commands.Cog.listener()
+    async def on_invite_delete(self, invite):
+        embed = discord.Embed(title="➖ invite deleted", color=0xff4500)
+        embed.add_field(name="code", value=invite.code)
+        await self.log(invite.guild, embed)
+
+    # ── typing (spam warning) ───────────────────
+
+    @commands.Cog.listener()
+    async def on_typing(self, channel, user, when):
+        if user.bot:
+            return
+        embed = discord.Embed(title="⌨ typing", color=0x5865f2)
+        embed.add_field(name="user", value=user.mention)
+        embed.add_field(name="channel", value=channel.mention)
         await self.log(channel.guild, embed)
 
 async def setup(bot):
