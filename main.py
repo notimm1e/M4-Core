@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+ALLOWED_GUILD_ID = 1483246510337425483
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -21,6 +23,11 @@ class M4Core(commands.Bot):
         )
 
     async def setup_hook(self):
+        async def globally_block_other_guilds(ctx):
+            return ctx.guild is not None and ctx.guild.id == ALLOWED_GUILD_ID
+
+        self.add_check(globally_block_other_guilds)
+
         for root, dirs, files in os.walk("./commands"):
             for filename in files:
                 if filename.endswith(".py") and filename != "__init__.py":
