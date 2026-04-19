@@ -58,7 +58,6 @@ class Logger(commands.Cog):
     async def on_message_delete(self, message):
         if not message.guild or message.guild.id != GUILD_ID or message.author.bot:
             return
-        executor = await self.get_executor(message.guild, discord.AuditLogAction.message_delete, message.author)
         self.deleted_cache.append({
             "content": message.content,
             "attachments": message.attachments
@@ -70,9 +69,6 @@ class Logger(commands.Cog):
             embed.add_field(name="content", value=message.content[:1000], inline=False)
         if message.attachments:
             embed.add_field(name="attachments", value="\n".join(a.url for a in message.attachments), inline=False)
-        if executor:
-            embed.add_field(name="deleted by", value=executor.mention)
-        await self.log(message.guild, embed)
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages):
