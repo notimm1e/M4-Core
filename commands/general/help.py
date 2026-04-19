@@ -31,7 +31,10 @@ class help(commands.Cog):
             "`!dice [sides]` · roll a random die\n"
             "`!snipe` · last deleted message\n"
             "`!timer <sec> [label]` · countdown timer\n"
-            "`!afk [reason]` · set afk status"
+            "`!afk [reason]` · set afk status\n"
+            "`!translate <text>` · auto-detect & translate to english\n"
+            "`!qr <text>` · generate a qr code\n"
+            "`!dict <term>` · urban dictionary lookup"
         ), inline=False)
 
         embed.add_field(name="◈ moderation", value=(
@@ -41,7 +44,10 @@ class help(commands.Cog):
             "`!rmwarn <@user> <idx>` · remove strike ⌠perm⌡\n"
             "`!kick <@user> [reason]` · eject member ⌠perm⌡\n"
             "`!ban <@user> [reason]` · blacklist user ⌠perm⌡\n"
-            "`!unban <id> [reason]` · lift blacklist ⌠perm⌡"
+            "`!unban <id> [reason]` · lift blacklist ⌠perm⌡\n"
+            "`!timeout <@user> <dur> [reason]` · mute member ⌠perm⌡\n"
+            "`!untimeout <@user>` · remove timeout ⌠perm⌡\n"
+            "`!slowmode <sec>` · set channel slowmode ⌠perm⌡"
         ), inline=False)
 
         embed.add_field(name="◈ economy", value=(

@@ -6,8 +6,17 @@ class Dictionary(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    ALLOWED_CHANNEL = 1495376426571006053
+
     @commands.command(name="dict", aliases=["dictionary"], description="look up a term on urban dictionary")
     async def dict(self, ctx, *, term: str):
+        if ctx.channel.id != self.ALLOWED_CHANNEL:
+            return await ctx.send(embed=discord.Embed(
+                description="⊘ you can only use this in a designated dictionary channel to prevent inappropriate words.",
+                color=0xff4500
+            ), delete_after=5)
+        if ctx.channel.id != 1495376426571006053:
+            return await ctx.message.delete()
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 "https://api.urbandictionary.com/v0/define",
