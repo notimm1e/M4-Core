@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import asyncio
 from collections import defaultdict, deque
 
 LOG_CHANNEL = 1495397971783712839
@@ -20,17 +19,32 @@ class Logger(commands.Cog):
         if ch:
             await ch.send(embed=embed)
 
-    async def get_executor(self, guild, action, target):
-        await asyncio.sleep(0.5)
-        async for entry in guild.audit_logs(limit=5, action=action):
-            if entry.target.id == target.id:
-                return entry.user
-        return None
-
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        self.cmd_usage[ctx.command.name] += 1
-        self.user_usage[ctx.author.id] += 1
+        if not ctx.guild or ctx.guild.id != GUILD_ID:
+            return
+        if ctx.command:
+            self.cmd_usage[ctx.command.name] += 1
+            self.user_usage[ctx.author.id] += 1
+
+    @commands.Cog.listener()
+    async def on_command_completion(self, ctx):
+        if not ctx.guild or ctx.guild.id != GUILD_ID:
+            return
+
+        if ctx.command and ctx.command.name == "eval":
+            embed = discord.Embed(
+                title="⚙ eval used",
+                color=0x5865f2,
+                timestamp=discord.utils.utcnow()
+            )
+            embed.add_field(name="user", value=ctx.author.mention)
+            embed.add_field(name="channel", value=ctx.channel.mention)
+
+            content = ctx.message.content[:1000] if ctx.message.content else "*no content*"
+            embed.add_field(name="input", value=f"```\n{content}\n```", inline=False)
+
+            await self.log(ctx.guild, embed)
 
     @commands.command()
     async def stats(self, ctx):
@@ -58,17 +72,23 @@ class Logger(commands.Cog):
     async def on_message_delete(self, message):
         if not message.guild or message.guild.id != GUILD_ID or message.author.bot:
             return
+
         self.deleted_cache.append({
             "content": message.content,
             "attachments": message.attachments
         })
+
         embed = discord.Embed(title="🗑 message deleted", color=0xff4500, timestamp=discord.utils.utcnow())
         embed.add_field(name="user", value=message.author.mention)
         embed.add_field(name="channel", value=message.channel.mention)
+
         if message.content:
             embed.add_field(name="content", value=message.content[:1000], inline=False)
+
         if message.attachments:
             embed.add_field(name="attachments", value="\n".join(a.url for a in message.attachments), inline=False)
+
+        await self.log(message.guild, embed)
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages):
@@ -96,11 +116,8 @@ class Logger(commands.Cog):
     async def on_member_ban(self, guild, user):
         if guild.id != GUILD_ID:
             return
-        executor = await self.get_executor(guild, discord.AuditLogAction.ban, user)
         embed = discord.Embed(title="🔨 user banned", color=0xff0000)
         embed.add_field(name="user", value=str(user))
-        if executor:
-            embed.add_field(name="by", value=executor.mention)
         await self.log(guild, embed)
 
     @commands.Cog.listener()
