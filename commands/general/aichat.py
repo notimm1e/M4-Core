@@ -1,18 +1,15 @@
 import discord
 from discord.ext import commands
-import json
+import os
 from groq import Groq
 from datetime import datetime
 
-# Configuration
 CH_ID = 1492530524974088404
 MAX_HISTORY = 50
 
 def get_slug_response(messages):
     try:
-        with open("groq.json", "r") as f:
-            config = json.load(f)
-        client = Groq(api_key=config["api_key"])
+        client = Groq(api_key=os.getenv("GROQ_KEY"))
 
         system_prompt = (
             "your name is slug, the consciousness inside m4 core. "
@@ -47,10 +44,8 @@ class SlugChat(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        # ignore self, wrong channel, or command prefixes
         if message.author.bot or message.channel.id != CH_ID:
             return
-        
         if message.content.startswith("!"):
             return
 
@@ -58,39 +53,27 @@ class SlugChat(commands.Cog):
         user_name = message.author.display_name
         formatted_content = f"[{timestamp}] {user_name}: {message.content}"
 
-        # add to memory
         self.history.append({"role": "user", "name": user_name, "content": formatted_content})
 
-        # trim to 50
         if len(self.history) > MAX_HISTORY:
             self.history = self.history[-MAX_HISTORY:]
 
         async with message.channel.typing():
             response = get_slug_response(self.history)
-            
-            # remember what slug said
             self.history.append({"role": "assistant", "content": response})
 
-            embed = discord.Embed(
-                description=response,
-                color=0x2b2d31
-            )
-            embed.set_footer(text=f"- slug")
-            
+            embed = discord.Embed(description=response, color=0x2b2d31)
+            embed.set_footer(text="- slug")
             await message.reply(embed=embed, mention_author=False)
+
     @commands.command(name="brainwash")
-    @commands.has_permissions(manage_messages=True) # Optional: restrict to mods
+    @commands.has_permissions(manage_messages=True)
     async def clear_slug(self, ctx):
-        # Simply empty the list
         self.history = []
-        
-        embed = discord.Embed(
+        await ctx.send(embed=discord.Embed(
             description="history wiped. i forgot everything. honestly, thank you.",
             color=0x2b2d31
-        )
-        await ctx.send(embed=embed)
+        ))
 
-
-# this is the part that connects it to main.py
 async def setup(bot):
     await bot.add_cog(SlugChat(bot))
