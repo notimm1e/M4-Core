@@ -1,9 +1,8 @@
 import discord
 import os
 import asyncio
+import json
 from discord.ext import commands
-
-API_KEY = os.getenv("OPENWEATHER_KEY")
 
 class Weather(commands.Cog):
     def __init__(self, bot):
@@ -11,25 +10,28 @@ class Weather(commands.Cog):
 
     @commands.command(name="weather", aliases=["w"], description="get current weather for a city")
     async def weather(self, ctx, *, city: str):
+        api_key = os.getenv("OPENWEATHER_KEY")
+        if not api_key:
+            return await ctx.send(embed=discord.Embed(description="✖ OPENWEATHER_KEY not set in .env.", color=0xff4500))
+
         proc = await asyncio.create_subprocess_shell(
-            f'curl -s "https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"',
+            f'curl -s "https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
         stdout, _ = await proc.communicate()
 
         try:
-            import json
             data = json.loads(stdout.decode())
         except Exception:
             return await ctx.send(embed=discord.Embed(description="✖ failed to parse weather data.", color=0xff4500))
 
         if data.get("cod") == 401:
             return await ctx.send(embed=discord.Embed(description="✖ invalid api key.", color=0xff4500))
-        if data.get("cod") == "404":
+        if str(data.get("cod")) == "404":
             return await ctx.send(embed=discord.Embed(description="✖ city not found.", color=0xff4500))
         if data.get("cod") != 200:
-            return await ctx.send(embed=discord.Embed(description="✖ weather service unavailable.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description=f"✖ weather service error: {data.get('message', 'unknown')}", color=0xff4500))
 
         temp = data["main"]["temp"]
         feels = data["main"]["feels_like"]
