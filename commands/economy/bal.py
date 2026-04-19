@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, open_account
+from helpers.economy_base import load_bank, open_account
 
 class Balance(commands.Cog):
     def __init__(self, bot):

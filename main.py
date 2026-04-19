@@ -7,11 +7,14 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+ALLOWED_GUILD_ID = 1483246510337425483
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
+intents.moderation = True
 
-class MyBot(commands.Bot):
+class M4Core(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix='!',
@@ -20,22 +23,17 @@ class MyBot(commands.Bot):
         )
 
     async def setup_hook(self):
-        excluded_modules = {
-            "commands.economy.economy_base",
-            "commands.admins_config",
-            "commands.blacklist_config"
-        }
-        
+        async def globally_block_other_guilds(ctx):
+            return ctx.guild is not None and ctx.guild.id == ALLOWED_GUILD_ID
+
+        self.add_check(globally_block_other_guilds)
+
         for root, dirs, files in os.walk("./commands"):
             for filename in files:
                 if filename.endswith(".py") and filename != "__init__.py":
                     relative_path = os.path.relpath(os.path.join(root, filename), ".")
                     module_path = relative_path.replace(os.sep, ".").removesuffix(".py")
-                    
-                    if module_path in excluded_modules:
-                        print(f"⊘ skipped: {module_path}")
-                        continue
-                    
+
                     try:
                         await self.load_extension(module_path)
                         print(f"√ loaded: {module_path}")
@@ -77,5 +75,5 @@ class MyBot(commands.Bot):
         else:
             print(f"unhandled error in {ctx.command}: {error}")
 
-bot = MyBot()
+bot = M4Core()
 bot.run(TOKEN)

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import os
-from commands.admins_config import is_admin
+from helpers.admins_config import is_admin
 
 class Admin(commands.Cog):
     def __init__(self, bot):

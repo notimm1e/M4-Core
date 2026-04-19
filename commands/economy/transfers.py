@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account, debt_prompt
-from commands.admins_config import is_admin
+from helpers.economy_base import load_bank, save_bank, open_account, debt_prompt
+from helpers.admins_config import is_admin
 WALLET_FLOOR = 250
 
 class Transfers(commands.Cog):

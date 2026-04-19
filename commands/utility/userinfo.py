@@ -1,19 +1,34 @@
 import discord
 from discord.ext import commands
+from helpers.economy_base import load_bank, open_account
+import json
+import os
+
+EXCLUDED_ROLE = 1489622224267641043
+WARNINGS_FILE = "warnings.json"
+
+def load_warnings():
+    if os.path.exists(WARNINGS_FILE):
+        with open(WARNINGS_FILE, "r") as f:
+            return json.load(f)
+    return {}
 
 class userinfo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="userinfo", aliases=["ui", "whois"])
+    @commands.command(name="userinfo", aliases=["ui", "whois", "profile"])
     async def userinfo(self, ctx, member: discord.Member = None):
         member = member or ctx.author
 
         joined_at = member.joined_at.strftime("%b %d, %Y")
         created_at = member.created_at.strftime("%b %d, %Y")
 
-        roles = [role.mention for role in reversed(member.roles) if role != ctx.guild.default_role]
-        top_role = member.top_role.mention if roles else "no roles"
+        roles = [
+            role.mention for role in reversed(member.roles)
+            if role != ctx.guild.default_role and role.id != EXCLUDED_ROLE
+        ]
+        top_role = member.top_role.mention if member.top_role != ctx.guild.default_role else "no roles"
 
         badges = []
         if member.bot:
@@ -23,12 +38,23 @@ class userinfo(commands.Cog):
         if member.premium_since:
             badges.append(f"boosting since {member.premium_since.strftime('%b %d, %Y')}")
 
+        # economy
+        data = load_bank()
+        data = open_account(member.id, data)
+        uid = str(member.id)
+        wallet = data[uid]["wallet"]
+        bank = data[uid]["bank"]
+        debt = data[uid]["debt"]
+
+        # warnings
+        warnings = load_warnings()
+        warn_count = len(warnings.get(str(ctx.guild.id), {}).get(uid, []))
+
         embed = discord.Embed(
             title=member.name,
             description=" · ".join(badges) if badges else None,
-            color=member.color if member.color.value else discord.Color.blue()
+            color=member.color if member.color.value else 0x2b2d31
         )
-
         embed.set_thumbnail(url=member.display_avatar.url)
 
         embed.add_field(name="id", value=f"`{member.id}`", inline=True)
@@ -37,6 +63,12 @@ class userinfo(commands.Cog):
 
         embed.add_field(name="joined server", value=joined_at, inline=True)
         embed.add_field(name="joined discord", value=created_at, inline=True)
+        embed.add_field(name="warnings", value=f"`{warn_count}`", inline=True)
+
+        embed.add_field(name="◈ wallet", value=f"⌬ {wallet:,}", inline=True)
+        embed.add_field(name="◈ bank", value=f"⌬ {bank:,}", inline=True)
+        if debt > 0:
+            embed.add_field(name="⊘ debt", value=f"⌬ {debt:,}", inline=True)
 
         if roles:
             role_str = " ".join(roles)
@@ -45,7 +77,6 @@ class userinfo(commands.Cog):
             embed.add_field(name=f"roles [{len(roles)}]", value=role_str, inline=False)
 
         embed.set_footer(text=f"requested by {ctx.author.name}")
-
         await ctx.send(embed=embed)
 
 async def setup(bot):

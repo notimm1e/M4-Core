@@ -4,7 +4,7 @@ import asyncio
 import json
 from discord.ext import commands
 from groq import Groq
-from commands.economy.economy_base import load_bank, save_bank, open_account, apply_loss, apply_earnings, debt_prompt
+from helpers.economy_base import load_bank, save_bank, open_account, apply_loss, apply_earnings, debt_prompt
 
 # --- AI Integration Helpers ---
 def get_ai_commentary(bet_amount, multiplier, profit):

@@ -31,7 +31,16 @@ class help(commands.Cog):
             "`!dice [sides]` · roll a random die\n"
             "`!snipe` · last deleted message\n"
             "`!timer <sec> [label]` · countdown timer\n"
-            "`!afk [reason]` · set afk status"
+            "`!afk [reason]` · set afk status\n"
+            "`!translate <text>` · auto-detect & translate to english\n"
+            "`!qr <text>` · generate a qr code\n"
+            "`!dict <term>` · urban dictionary lookup\n"
+            "`!weather <city>` · current weather\n"
+            "`!b64 encode/decode <text>` · base64 encode or decode\n"
+            "`!color <hex>` · color swatch & info\n"
+            "`!mock <text>` · mOcK tExT\n"
+            "`!reverse <text>` · reverse a string\n"
+            "`!ascii <text>` · ascii art text"
         ), inline=False)
 
         embed.add_field(name="◈ moderation", value=(
@@ -41,7 +50,12 @@ class help(commands.Cog):
             "`!rmwarn <@user> <idx>` · remove strike ⌠perm⌡\n"
             "`!kick <@user> [reason]` · eject member ⌠perm⌡\n"
             "`!ban <@user> [reason]` · blacklist user ⌠perm⌡\n"
-            "`!unban <id> [reason]` · lift blacklist ⌠perm⌡"
+            "`!unban <id> [reason]` · lift blacklist ⌠perm⌡\n"
+            "`!timeout <@user> <dur> [reason]` · mute member ⌠perm⌡\n"
+            "`!untimeout <@user>` · remove timeout ⌠perm⌡\n"
+            "`!slowmode <sec>` · set channel slowmode ⌠perm⌡\n"
+            "`!lock` · lock current channel ⌠perm⌡\n"
+            "`!unlock` · unlock current channel ⌠perm⌡"
         ), inline=False)
 
         embed.add_field(name="◈ economy", value=(
@@ -54,6 +68,7 @@ class help(commands.Cog):
             "`!daily` · 24h reward ⧖\n"
             "`!rob <@user>` · attempt theft ⧖\n"
             "`!crime` · commit a crime ⧖\n"
+            "`!coinflip <h/t> <amt>` · flip a coin\n"
             "`!blackjack <amt>` · play blackjack\n"
             "`!plinko <amt>` · drop the ball\n"
             "`!redeem <code>` · redeem a code\n"
@@ -69,7 +84,8 @@ class help(commands.Cog):
             "`!deathdate [@user]` · predict demise\n"
             "`!impostor [@user]` · sus level check\n"
             "`!dumbass [@user]` · issue certificate\n"
-            "`!confess <msg>` · anonymous message"
+            "`!confess <msg>` · anonymous message\n"
+            "`!wyr` · would you rather"
         ), inline=False)
 
         embed.add_field(name="◈ maintenance ⌠auth⌡", value=(
@@ -81,6 +97,7 @@ class help(commands.Cog):
             "`!admin @user` · add admin\n"
             "`!rmadmin @user` · remove admin\n"
             "`!adminlist` · list admins\n"
+            "`!env [name] [value]` · manage env vars\n"
             "`!issuecode <code> <amt> [uses]` · create redeem code\n"
             "`!revokecode <code>` · delete redeem code\n"
             "`!setwelcome <#ch>` · set welcome channel\n"

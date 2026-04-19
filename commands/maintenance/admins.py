@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from commands.admins_config import load_admins, save_admins, is_admin
+from helpers.admins_config import load_admins, save_admins, is_admin
 
 class Admins(commands.Cog):
     def __init__(self, bot):

@@ -1,7 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown, apply_earnings, debt_prompt
+from helpers.economy_base import load_bank, save_bank, open_account, get_cooldown, set_cooldown, apply_earnings, debt_prompt
 
 COOLDOWN = 120
 

@@ -8,13 +8,13 @@ import traceback
 from discord.ext import commands
 
 MAX_EMBED = 4000
+CONSOLE_CHANNEL_ID = 1495411242859364474
 
 _ADMINS_FILE = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "admins.yaml")
 )
 
 def _is_admin_raw(user_id: int) -> bool:
-    """Read admins.yaml with stdlib only — no pyyaml needed."""
     try:
         with open(_ADMINS_FILE, "r") as f:
             for line in f:
@@ -35,11 +35,7 @@ class Eval(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="eval")
-    async def eval_cmd(self, ctx, *, code: str):
-        if not _is_admin_raw(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
-
+    async def _run_code(self, ctx, code: str):
         code = code.strip().strip("```").removeprefix("python").removeprefix("py").strip()
 
         msg = await ctx.send(embed=discord.Embed(description="⧖ running...", color=0x2b2d31))
@@ -49,7 +45,6 @@ class Eval(commands.Cog):
         shell_out = ""
         py_error = ""
 
-        # Try as shell command first (pip install, ls, etc.)
         try:
             proc = await asyncio.create_subprocess_shell(
                 code,
@@ -90,6 +85,24 @@ class Eval(commands.Cog):
         embed.set_footer(text=f"exit {'0' if success else '1'}")
 
         await msg.edit(embed=embed)
+
+    @commands.command(name="eval")
+    async def eval_cmd(self, ctx, *, code: str):
+        if not _is_admin_raw(ctx.author.id):
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+        await self._run_code(ctx, code)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+        if message.channel.id != CONSOLE_CHANNEL_ID:
+            return
+        if not _is_admin_raw(message.author.id):
+            return
+
+        ctx = await self.bot.get_context(message)
+        await self._run_code(ctx, message.content)
 
     @eval_cmd.error
     async def eval_error(self, ctx, error):

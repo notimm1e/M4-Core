@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
-from commands.admins_config import is_admin
-from commands.blacklist_config import load_blacklist, save_blacklist
+from helpers.admins_config import is_admin
+from helpers.blacklist_config import load_blacklist, save_blacklist
 
 class Blacklist(commands.Cog):
     def __init__(self, bot):
