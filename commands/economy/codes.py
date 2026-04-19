@@ -2,8 +2,8 @@ import discord
 import json
 import os
 from discord.ext import commands
-from commands.economy.economy_base import load_bank, save_bank, open_account, apply_earnings
-from commands.admins_config import is_admin
+from helpers.economy_base import load_bank, save_bank, open_account, apply_earnings
+from helpers.admins_config import is_admin
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CODES_FILE = os.path.join(BASE_DIR, "codes.json")

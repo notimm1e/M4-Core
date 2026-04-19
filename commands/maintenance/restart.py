@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import sys
-from commands.admins_config import is_admin
+from helpers.admins_config import is_admin
 
 class restart(commands.Cog):
     def __init__(self, bot):

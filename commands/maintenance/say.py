@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from commands.admins_config import is_admin
+from helpers.admins_config import is_admin
 
 class say(commands.Cog):
     def __init__(self, bot):

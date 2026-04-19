@@ -2,16 +2,11 @@ import discord
 from discord.ext import commands
 import asyncio
 import os
-from commands.admins_config import is_admin
+from helpers.admins_config import is_admin
 
 class pull(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.excluded_modules = {
-            "commands.economy.economy_base",
-            "commands.admins_config",
-            "commands.blacklist_config"
-        }
 
     async def reload_all_extensions(self):
         results = []
@@ -20,10 +15,7 @@ class pull(commands.Cog):
                 if file.endswith(".py") and file != "__init__.py":
                     rel_path = os.path.relpath(os.path.join(root, file), ".")
                     module_path = rel_path.replace(os.sep, ".").removesuffix(".py")
-                    
-                    if module_path in self.excluded_modules:
-                        continue
-                    
+
                     try:
                         await self.bot.reload_extension(module_path)
                         results.append(f"√ `{module_path}`")
@@ -38,20 +30,17 @@ class pull(commands.Cog):
         return results
 
     @commands.command(name="pull")
-    async def pull(self, ctx, branch: str = "canary"):
+    async def pull(self, ctx, branch: str = "main"):
         if not is_admin(ctx.author.id):
             return
-
         branch = branch.lower()
         if branch not in ["canary", "main"]:
             return await ctx.send("✖ use `!pull canary` or `!pull main`.")
-
         status_msg = await ctx.send(embed=discord.Embed(
             title="⟳ pulling",
             description=f"pulling and updating bot internals from **{branch}**...",
             color=discord.Color.blue()
         ))
-
         try:
             process = await asyncio.create_subprocess_shell(
                 f"git fetch origin && git reset --hard origin/{branch}",
@@ -59,22 +48,17 @@ class pull(commands.Cog):
                 stderr=asyncio.subprocess.PIPE
             )
             stdout, stderr = await process.communicate()
-
             if process.returncode != 0:
                 raise Exception(stderr.decode())
-
             reload_logs = await self.reload_all_extensions()
-
             git_log = stdout.decode().strip()
             if len(git_log) > 500:
                 git_log = "..." + git_log[-497:]
             if not git_log:
                 git_log = "already up to date."
-
             log_chunk = "\n".join(reload_logs)
             if len(log_chunk) > 1024:
                 log_chunk = log_chunk[:1020] + "..."
-
             embed = discord.Embed(
                 title="√ pulled!",
                 description=f"pulled and updated bot internals from `{branch}`.",
@@ -83,7 +67,6 @@ class pull(commands.Cog):
             embed.add_field(name="git output", value=f"```\n{git_log}\n```", inline=False)
             embed.add_field(name="bot logs", value=log_chunk or "no cogs found.", inline=False)
             await status_msg.edit(embed=embed)
-
         except Exception as e:
             err = str(e)
             if len(err) > 1000:
