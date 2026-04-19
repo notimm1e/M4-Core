@@ -175,16 +175,5 @@ class Logger(commands.Cog):
         embed.add_field(name="code", value=invite.code)
         await self.log(invite.guild, embed)
 
-    # ── typing (spam warning) ───────────────────
-
-    @commands.Cog.listener()
-    async def on_typing(self, channel, user, when):
-        if user.bot:
-            return
-        embed = discord.Embed(title="⌨ typing", color=0x5865f2)
-        embed.add_field(name="user", value=user.mention)
-        embed.add_field(name="channel", value=channel.mention)
-        await self.log(channel.guild, embed)
-
 async def setup(bot):
     await bot.add_cog(Logger(bot))
