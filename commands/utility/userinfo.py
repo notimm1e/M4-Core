@@ -1,16 +1,20 @@
 import discord
+import msgpack
+import os
 from discord.ext import commands
 from helpers.economy_base import load_bank, open_account
-import json
-import os
 
 EXCLUDED_ROLE = 1489622224267641043
-WARNINGS_FILE = "warnings.json"
+WARNINGS_FILE = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "warnings.msgpack"))
 
 def load_warnings():
     if os.path.exists(WARNINGS_FILE):
-        with open(WARNINGS_FILE, "r") as f:
-            return json.load(f)
+        try:
+            with open(WARNINGS_FILE, "rb") as f:
+                data = msgpack.unpack(f, raw=False)
+                return data if data else {}
+        except (msgpack.UnpackException, OSError):
+            pass
     return {}
 
 class userinfo(commands.Cog):

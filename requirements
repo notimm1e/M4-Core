@@ -6,3 +6,4 @@ qrcode[pil]
 Pillow
 deep-translator
 requests
+msgpack

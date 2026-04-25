@@ -1,7 +1,7 @@
 import discord
-import random
-import json
+import msgpack
 import os
+import random
 from discord.ext import commands
 from datetime import datetime
 
@@ -35,17 +35,23 @@ REASONS = [
 
 RANKS = ["bronze", "silver", "gold", "platinum", "diamond", "legendary", "cosmic"]
 SEALS = ["🔏 certified", "📜 notarized", "⚖ legally binding", "🏛 government approved", "👁 witnessed"]
-TRACKER_FILE = "dumbass.json"
+TRACKER_FILE = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "dumbass.msgpack"))
 
 def load_tracker():
     if os.path.exists(TRACKER_FILE):
-        with open(TRACKER_FILE, "r") as f:
-            return json.load(f)
+        try:
+            with open(TRACKER_FILE, "rb") as f:
+                data = msgpack.unpack(f, raw=False)
+                return data if data else {}
+        except (msgpack.UnpackException, OSError):
+            pass
     return {}
 
 def save_tracker(data):
-    with open(TRACKER_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+    tmp = TRACKER_FILE + ".tmp"
+    with open(tmp, "wb") as f:
+        msgpack.pack(data, f, use_bin_type=True)
+    os.replace(tmp, TRACKER_FILE)
 
 def get_rank(count):
     index = min((count - 1) // 2, len(RANKS) - 1)

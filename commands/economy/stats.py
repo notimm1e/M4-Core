@@ -10,13 +10,18 @@ class Stats(commands.Cog):
     async def leaderboard(self, ctx):
         data = load_bank()
         leaderboard = sorted(data.items(), key=lambda x: x[1]["wallet"] + x[1]["bank"], reverse=True)
-        
+
         embed = discord.Embed(title="╼ core leaderboard ╾", color=0x2b2d31)
-        
+
         description = ""
         for i, (user_id, balances) in enumerate(leaderboard[:10], 1):
             user = self.bot.get_user(int(user_id))
-            name = user.display_name.lower() if user else "unknown_user"
+            if not user:
+                try:
+                    user = await self.bot.fetch_user(int(user_id))
+                except discord.NotFound:
+                    user = None
+            name = user.display_name.lower() if user else f"unknown ({user_id})"
             total = balances["wallet"] + balances["bank"]
             description += f"`{i}.` **{name}** · ⌬ {total:,}\n"
 

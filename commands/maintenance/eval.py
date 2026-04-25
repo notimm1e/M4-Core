@@ -19,7 +19,7 @@ _cfg = _load_cfg()
 CONSOLE_CHANNEL_ID = _cfg["channels"]["console"]
 
 _ADMINS_FILE = os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "admins.yaml")
+    os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "admins.yaml"))
 )
 
 def _is_admin_raw(user_id: int) -> bool:

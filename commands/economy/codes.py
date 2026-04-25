@@ -6,7 +6,7 @@ from helpers.economy_base import load_bank, save_bank, open_account, apply_earni
 from helpers.admins_config import is_admin
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CODES_FILE = os.path.join(BASE_DIR, "codes.msgpack")
+CODES_FILE = os.path.normpath(os.path.join(BASE_DIR, "..", "..", "data", "codes.msgpack"))
 
 def load_codes():
     if os.path.exists(CODES_FILE):

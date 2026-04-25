@@ -29,7 +29,11 @@ class M4Core(commands.Bot):
         async def globally_block_other_guilds(ctx):
             return ctx.guild is not None and ctx.guild.id == ALLOWED_GUILD_ID
 
+        async def typing_indicator(ctx):
+            await ctx.typing()
+
         self.add_check(globally_block_other_guilds)
+        self.before_invoke(typing_indicator)
 
         for root, dirs, files in os.walk("./commands"):
             for filename in files:

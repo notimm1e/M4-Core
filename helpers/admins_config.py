@@ -1,7 +1,7 @@
 import yaml
 import os
 
-ADMINS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "admins.yaml")
+ADMINS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "admins.yaml")
 
 def _resolve():
     return os.path.normpath(ADMINS_FILE)

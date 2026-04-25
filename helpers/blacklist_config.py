@@ -1,7 +1,7 @@
 import json
 import os
 
-BLACKLIST_FILE = "blacklist.json"
+BLACKLIST_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "blacklist.json")
 
 def load_blacklist() -> set:
     if not os.path.exists(BLACKLIST_FILE):

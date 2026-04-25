@@ -23,6 +23,7 @@ qrcode[pil]
 Pillow
 deep-translator
 requests
+msgpack
 ```
 
 Install with:

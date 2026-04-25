@@ -1,20 +1,26 @@
 import discord
-import json
+import msgpack
 import os
 from discord.ext import commands
 
-WARNINGS_FILE = "warnings.json"
+WARNINGS_FILE = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "warnings.msgpack"))
 
 def load_warnings():
     if os.path.exists(WARNINGS_FILE):
-        with open(WARNINGS_FILE, "r") as f:
-            return json.load(f)
+        try:
+            with open(WARNINGS_FILE, "rb") as f:
+                data = msgpack.unpack(f, raw=False)
+                return data if data else {}
+        except (msgpack.UnpackException, OSError):
+            pass
     return {}
 
 def save_warnings(data):
-    with open(WARNINGS_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
+    tmp = WARNINGS_FILE + ".tmp"
+    with open(tmp, "wb") as f:
+        msgpack.pack(data, f, use_bin_type=True)
+    os.replace(tmp, WARNINGS_FILE)
+    
 class warn(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

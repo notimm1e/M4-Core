@@ -5,7 +5,7 @@ import asyncio
 import discord
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BANK_FILE = os.path.join(BASE_DIR, "bank.msgpack")
+BANK_FILE = os.path.normpath(os.path.join(BASE_DIR, "..", "data", "bank.msgpack"))
 
 def load_bank():
     if os.path.exists(BANK_FILE):
