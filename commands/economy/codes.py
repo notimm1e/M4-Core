@@ -1,28 +1,27 @@
 import discord
-import json
+import msgpack
 import os
 from discord.ext import commands
 from helpers.economy_base import load_bank, save_bank, open_account, apply_earnings
 from helpers.admins_config import is_admin
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CODES_FILE = os.path.join(BASE_DIR, "codes.json")
+CODES_FILE = os.path.join(BASE_DIR, "codes.msgpack")
 
 def load_codes():
     if os.path.exists(CODES_FILE):
         try:
-            with open(CODES_FILE, "r") as f:
-                content = f.read().strip()
-                if content:
-                    return json.loads(content)
-        except (json.JSONDecodeError, OSError):
+            with open(CODES_FILE, "rb") as f:
+                data = msgpack.unpack(f, raw=False)
+                return data if data else {}
+        except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_codes(data):
     tmp = CODES_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(data, f, indent=4)
+    with open(tmp, "wb") as f:
+        msgpack.pack(data, f, use_bin_type=True)
     os.replace(tmp, CODES_FILE)
 
 class Codes(commands.Cog):
@@ -74,7 +73,7 @@ class Codes(commands.Cog):
         entry = codes[code]
         user_id = str(ctx.author.id)
 
-        if user_id in entry["redeemed_by"]:
+        if user_id in [str(x) for x in entry["redeemed_by"]]:
             return await ctx.send(embed=discord.Embed(
                 description="⊘ you've already redeemed this code!", color=0xff4500
             ), ephemeral=True)
@@ -84,15 +83,15 @@ class Codes(commands.Cog):
                 description="⊘ this code has no uses remaining..", color=0xff4500
             ), ephemeral=True)
 
+        entry["redeemed_by"].append(user_id)
+        entry["uses"] -= 1
+        save_codes(codes)
+
         data = load_bank()
         data = open_account(ctx.author.id, data)
         amount = entry["amount"]
         debt_paid, to_wallet = apply_earnings(user_id, data, amount)
         save_bank(data)
-
-        entry["redeemed_by"].append(user_id)
-        entry["uses"] -= 1
-        save_codes(codes)
 
         desc = f"√ redeemed `{code}` — **⌬ {amount:,}** cores added"
         if debt_paid:

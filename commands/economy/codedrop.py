@@ -26,7 +26,6 @@ class CodeDrop(commands.Cog):
 
     @tasks.loop(minutes=DROP_INTERVAL)
     async def drop_loop(self):
-
         if random.random() > DROP_CHANCE:
             return
 
@@ -43,15 +42,6 @@ class CodeDrop(commands.Cog):
         uses = random.randint(1, 5)
         expiry_timestamp = time.time() + CODE_EXPIRE_SECONDS
 
-        codes[code] = {
-            "amount": amount,
-            "uses": uses,
-            "redeemed_by": [],
-            "expires_at": expiry_timestamp,
-            "message_id": None
-        }
-
-        # 4. Send Embed
         embed = discord.Embed(title="╼ code drop ╾", color=0xfee75c)
         embed.description = (
             f"code: `{code}`\n"
@@ -62,7 +52,14 @@ class CodeDrop(commands.Cog):
         )
 
         msg = await channel.send(embed=embed)
-        codes[code]["message_id"] = msg.id
+
+        codes[code] = {
+            "amount": amount,
+            "uses": uses,
+            "redeemed_by": [],
+            "expires_at": expiry_timestamp,
+            "message_id": msg.id
+        }
         save_codes(codes)
 
     @tasks.loop(seconds=30)
@@ -79,7 +76,7 @@ class CodeDrop(commands.Cog):
             if now > data.get("expires_at", 0):
                 if channel and data.get("message_id"):
                     try:
-                        msg = await channel.fetch_message(data["message_id"])
+                        msg = channel.get_partial_message(data["message_id"])
                         expired_embed = discord.Embed(title="╼ code drop! ╾", color=0x555555)
                         expired_embed.description = "⊘ this drop has expired"
                         await msg.edit(embed=expired_embed)

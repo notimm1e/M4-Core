@@ -21,7 +21,7 @@ def get_m4_commentary(bet_amount, result_type, profit_loss_amount):
             "you are slug, commenting on results. lowercase only. minimal emojis. "
             "if they win: be a hype man, high energy slang. "
             "if they lose small: tell them to touch grass or aw shucks. "
-            "if they lose 1000+: tell them to take a break, it's a bad habit, and link ncpgambling.org. "
+            "if they lose 2000+: tell them to take a break, it's a bad habit, and link ncpgambling.org. "
             "be creative, don't repeat yourself."
         )
 

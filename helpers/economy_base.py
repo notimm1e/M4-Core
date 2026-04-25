@@ -1,29 +1,28 @@
-import json
+import msgpack
 import os
 import time
 import asyncio
 import discord
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BANK_FILE = os.path.join(BASE_DIR, "bank.json")
+BANK_FILE = os.path.join(BASE_DIR, "bank.msgpack")
 
 def load_bank():
     if os.path.exists(BANK_FILE):
         try:
-            with open(BANK_FILE, "r") as f:
-                content = f.read().strip()
-                if content:
-                    return json.loads(content)
-        except (json.JSONDecodeError, OSError):
+            with open(BANK_FILE, "rb") as f:
+                data = msgpack.unpack(f, raw=False)
+                return data if data else {}
+        except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_bank(data):
     tmp = BANK_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(data, f, indent=4)
+    with open(tmp, "wb") as f:
+        msgpack.pack(data, f, use_bin_type=True)
     os.replace(tmp, BANK_FILE)
-
+    
 def open_account(user_id, data):
     user_id = str(user_id)
     if user_id not in data:
