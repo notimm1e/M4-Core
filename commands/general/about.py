@@ -22,7 +22,7 @@ class about(commands.Cog):
 
         embed = discord.Embed(
             title="m4-core",
-            description="a modular discord bot built with discord.py.",
+            description="a modular discord bot built with discord.py",
             color=discord.Color.blue()
         )
         embed.set_thumbnail(url=ctx.bot.user.display_avatar.url)
@@ -30,7 +30,8 @@ class about(commands.Cog):
         embed.add_field(name="servers", value=f"`{len(ctx.bot.guilds)}`", inline=True)
         embed.add_field(name="uptime", value=" ".join(parts), inline=True)
         embed.add_field(name="latency", value=f"`{round(ctx.bot.latency * 1000)}ms`", inline=True)
-        embed.add_field(name="developer", value="immie", inline=True)
+        embed.add_field(name="developer", value="immie & nyx", inline=True)
+        embed.add_field(name="repository", value="[github.com/immie/m4-core](https://github.com/immie/m4-core)", inline=True)
         embed.set_footer(text="m4-core · built with discord.py")
         await ctx.send(embed=embed)
 

@@ -5,10 +5,18 @@ import os
 import re
 import sys
 import traceback
+import yaml
 from discord.ext import commands
 
 MAX_EMBED = 4000
-CONSOLE_CHANNEL_ID = 1495411242859364474
+
+def _load_cfg():
+    path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "config.yaml"))
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+_cfg = _load_cfg()
+CONSOLE_CHANNEL_ID = _cfg["channels"]["console"]
 
 _ADMINS_FILE = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "admins.yaml")
@@ -37,14 +45,11 @@ class Eval(commands.Cog):
 
     async def _run_code(self, ctx, code: str):
         code = code.strip().strip("```").removeprefix("python").removeprefix("py").strip()
-
         msg = await ctx.send(embed=discord.Embed(description="⧖ running...", color=0x2b2d31))
-
         stdout_buf = io.StringIO()
         stderr_buf = io.StringIO()
         shell_out = ""
         py_error = ""
-
         try:
             proc = await asyncio.create_subprocess_shell(
                 code,
@@ -59,7 +64,6 @@ class Eval(commands.Cog):
             success = False
         except Exception:
             shell_out = None
-
         if shell_out is None:
             old_stdout, old_stderr = sys.stdout, sys.stderr
             sys.stdout, sys.stderr = stdout_buf, stderr_buf
@@ -71,19 +75,15 @@ class Eval(commands.Cog):
                 success = False
             finally:
                 sys.stdout, sys.stderr = old_stdout, old_stderr
-
             shell_out = (stdout_buf.getvalue() + stderr_buf.getvalue()).strip()
             if py_error:
                 shell_out = (shell_out + "\n" + py_error).strip()
-
         output = _truncate(shell_out) if shell_out else "*(no output)*"
         color = 0x57f287 if success else 0xff4500
-
         embed = discord.Embed(color=color)
         embed.add_field(name="◈ input", value=f"```\n{code[:900]}\n```", inline=False)
         embed.add_field(name="◈ output", value=f"```\n{output}\n```", inline=False)
         embed.set_footer(text=f"exit {'0' if success else '1'}")
-
         await msg.edit(embed=embed)
 
     @commands.command(name="eval")
@@ -100,7 +100,6 @@ class Eval(commands.Cog):
             return
         if not _is_admin_raw(message.author.id):
             return
-
         ctx = await self.bot.get_context(message)
         await self._run_code(ctx, message.content)
 

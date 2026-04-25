@@ -3,16 +3,24 @@ import random
 from discord.ext import commands
 
 ROASTS = [
-    "if brains were dynamite, you couldn't blow your hat off.",
-    "you're the human equivalent of a participation trophy.",
-    "i'd roast you harder but my mom said i'm not allowed to burn trash.",
-    "you have the charisma of a wet sock.",
-    "somewhere out there a tree is tirelessly producing oxygen for you. you owe it an apology.",
-    "you're not stupid, you just have bad luck thinking.",
-    "your wifi password is probably your only secret.",
-    "you're like a cloud. when you disappear, it's a beautiful day.",
-    "if you were a spice, you'd be flour.",
-    "you have something on your chin. no, the third one.",
+    "if brains were dynamite, you couldn't blow your hat off",
+    "you're the human equivalent of a participation trophy",
+    "i'd roast you harder but my mom said i'm not allowed to burn trash",
+    "you have the charisma of a wet sock",
+    "somewhere out there a tree is tirelessly producing oxygen for you, you owe it an apology",
+    "you're not stupid, you just have bad luck thinking",
+    "your wifi password is probably your only secret",
+    "you're like a cloud. when you disappear, it's a beautiful day",
+    "if you were a spice, you'd be flour",
+    "you have something on your chin. no, the third one",
+    "you're the reason the gene pool needs a lifeguard",
+    "you bring everyone so much joy... when you leave the room",
+    "you're as useless as the 'ueue' in 'queue'",
+    "if you were any slower, you'd be going backwards",
+    "you're the human version of a typo",
+    "you have the perfect face for radio",
+    "you're like a software update. whenever i see you, i think 'not now'",
+    "if you were a vegetable, you'd be a 'cabbage'",
 ]
 
 class roast(commands.Cog):

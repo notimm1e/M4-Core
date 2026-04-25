@@ -3,13 +3,13 @@ import random
 import asyncio
 from discord.ext import commands
 
-DEVICES = ["MacBook Pro 2021", "Dell XPS 15", "ThinkPad X1 Carbon", "Razer Blade 15", "HP Spectre x360", "Surface Pro 9"]
-OS_LIST = ["Windows 11 Home", "Ubuntu 22.04 LTS", "macOS Ventura 13.2", "Arch Linux (btw)", "Fedora 38"]
-STREETS = ["Oak Street", "Maple Avenue", "Pine Road", "Cedar Lane", "Elm Boulevard", "Birch Court"]
-CITIES = ["Springfield", "Shelbyville", "Ogdenville", "North Haverbrook", "Brockway", "Capital City"]
-STATES = ["TX", "CA", "NY", "FL", "OH", "WA"]
-PASSWORDS = ["hunter2", "password123", "iloveyou", "qwerty", "letmein", "abc123", "monkey", "dragon", "sunshine", "football"]
-BANKS = ["First National Bank", "Shelbyville Credit Union", "Springfield Savings", "Ogden Federal", "North Haverbrook Bank"]
+DEVICES = ["MacBook Pro 2021", "Dell XPS 15", "ThinkPad X1 Carbon", "Razer Blade 15", "HP Spectre x360", "Surface Pro 9", "iPhone 14 Pro", "Samsung Galaxy S23", "Google Pixel 7", "iPad Air 5", "Amazon Fire HD 10", "Nintendo Switch"]
+OS_LIST = ["Windows 11 Home", "Ubuntu 22.04 LTS", "macOS Ventura 13.2", "Arch Linux (btw)", "Fedora 38", "Debian 12", "Kali Linux 2023.2", "Manjaro 22.0", "Red Hat Enterprise Linux 9", "openSUSE Leap 15.4", "elementary OS 7.1", "Zorin OS 16"]
+STREETS = ["Oak Street", "Maple Avenue", "Pine Road", "Cedar Lane", "Elm Boulevard", "Birch Court", "Spruce Drive", "Willow Way", "Ash Terrace", "Cherry Circle", "Poplar Street", "Hawthorn Avenue"]
+CITIES = ["Springfield", "Shelbyville", "Ogdenville", "North Haverbrook", "Brockway", "Capital City", "Cypress Creek", "Waverly Hills", "Little Pwagmattasquarmsettport", "New Bedlam", "Sprooklyn", "Seinfeld"]
+STATES = ["TX", "CA", "NY", "FL", "OH", "WA", "IL", "PA", "MI", "GA", "NC", "NJ", "VA", "AZ", "MA", "TN", "IN", "MO", "MD", "WI", "CO", "MN", "SC", "AL", "LA", "KY", "OR", "OK", "CT", "IA", "UT", "NV", "AR", "MS", "KS", "NE", "WV", "ID", "HI", "NH", "ME", "MT", "RI", "DE", "SD", "ND"]
+PASSWORDS = ["hunter2", "password123", "iloveyou", "qwerty", "letmein", "abc123", "monkey", "dragon", "sunshine", "football", "princess", "welcome", "admin", "login", "passw0rd", "starwars", "12345678", "master", "hello", "freedom"]
+BANKS = ["First National Bank", "Shelbyville Credit Union", "Springfield Savings", "Ogden Federal", "North Haverbrook Bank", "Brockway Trust", "Capital City Bank", "Cypress Creek Credit Union", "Waverly Hills Savings", "Little Pwagmattasquarmsettport Bank", "New Bedlam Federal", "Sprooklyn National", "Seinfeld State Bank"]
 
 def fake_ip():
     return f"{random.randint(100,255)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
@@ -43,7 +43,7 @@ class hack(commands.Cog):
             f"⟳ triangulating location... `{street}, {city}, {state} {zipcode}`",
             f"⟳ breaching password vault...",
             f"⟳ cracking encryption...",
-            f"√ hack complete.",
+            f"√ hack complete!",
         ]
 
         embed = discord.Embed(title="⟳ hacking...", description=steps[0], color=discord.Color.red())
@@ -68,7 +68,6 @@ class hack(commands.Cog):
         result_embed.add_field(name="bank", value=f"`{bank}` · balance: `${balance}`", inline=False)
         result_embed.add_field(name="passwords found", value="\n".join(f"`{p}`" for p in passwords), inline=False)
         result_embed.set_thumbnail(url=member.display_avatar.url)
-        result_embed.set_footer(text="totally real. 100% legit. not fake at all.")
         await msg.edit(embed=result_embed)
 
     @hack.error

@@ -1,56 +1,33 @@
 import discord
+import os
+import yaml
 from discord.ext import commands
 from collections import defaultdict, deque
 
-LOG_CHANNEL = 1495397971783712839
-CONSOLE_CHANNEL = 1495411242859364474
-GUILD_ID = 1483246510337425483
+def _load_cfg():
+    path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "config.yaml"))
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+_cfg = _load_cfg()
+LOG_CHANNEL = _cfg["channels"]["log"]
+CONSOLE_CHANNEL = _cfg["channels"]["console"]
+GUILD_ID = _cfg["guild_id"]
 
 class Logger(commands.Cog):
-    # List of all permission names (keeps the code compatible across discord.py versions)
     PERMISSION_NAMES = [
-        "create_instant_invite",
-        "kick_members",
-        "ban_members",
-        "administrator",
-        "manage_channels",
-        "manage_guild",
-        "add_reactions",
-        "view_audit_log",
-        "priority_speaker",
-        "stream",
-        "view_channel",
-        "send_messages",
-        "send_tts_messages",
-        "manage_messages",
-        "embed_links",
-        "attach_files",
-        "read_message_history",
-        "mention_everyone",
-        "use_external_emojis",
-        "view_guild_insights",
-        "connect",
-        "speak",
-        "mute_members",
-        "deafen_members",
-        "move_members",
-        "use_vad",
-        "change_nickname",
-        "manage_nicknames",
-        "manage_roles",
-        "manage_webhooks",
-        "manage_emojis_and_stickers",
-        "use_application_commands",
-        "request_to_speak",
-        "manage_events",
-        "manage_threads",
-        "create_public_threads",
-        "create_private_threads",
-        "use_external_stickers",
-        "send_messages_in_threads",
-        "use_embedded_activities",
-        "moderate_members",
-        "send_voice_messages",
+        "create_instant_invite","kick_members","ban_members","administrator",
+        "manage_channels","manage_guild","add_reactions","view_audit_log",
+        "priority_speaker","stream","view_channel","send_messages",
+        "send_tts_messages","manage_messages","embed_links","attach_files",
+        "read_message_history","mention_everyone","use_external_emojis",
+        "view_guild_insights","connect","speak","mute_members","deafen_members",
+        "move_members","use_vad","change_nickname","manage_nicknames",
+        "manage_roles","manage_webhooks","manage_emojis_and_stickers",
+        "use_application_commands","request_to_speak","manage_events",
+        "manage_threads","create_public_threads","create_private_threads",
+        "use_external_stickers","send_messages_in_threads",
+        "use_embedded_activities","moderate_members","send_voice_messages",
     ]
 
     def __init__(self, bot):
@@ -66,26 +43,19 @@ class Logger(commands.Cog):
         if ch:
             await ch.send(embed=embed)
 
-    # ──────────────────────────────────────────────────────────────
-    # Helper: Role permission diff (simple + / - like before)
-    # ──────────────────────────────────────────────────────────────
-    def _get_permission_diff(self, before: discord.Role, after: discord.Role) -> list[str]:
+    def _get_permission_diff(self, before, after):
         changes = []
         for perm in self.PERMISSION_NAMES:
             try:
                 b_val = getattr(before.permissions, perm)
                 a_val = getattr(after.permissions, perm)
                 if b_val != a_val:
-                    sign = "+" if a_val else "-"
-                    changes.append(f"{sign} {perm.replace('_', ' ')}")
+                    changes.append(f"{'+'  if a_val else '-'} {perm.replace('_', ' ')}")
             except AttributeError:
                 continue
         return changes
 
-    # ──────────────────────────────────────────────────────────────
-    # Helper: Channel permission overwrite diff (simple + / - / reset)
-    # ──────────────────────────────────────────────────────────────
-    def _get_overwrite_diff(self, before_ow: discord.PermissionOverwrite, after_ow: discord.PermissionOverwrite) -> list[str]:
+    def _get_overwrite_diff(self, before_ow, after_ow):
         changes = []
         for perm in self.PERMISSION_NAMES:
             try:
@@ -102,9 +72,6 @@ class Logger(commands.Cog):
                 continue
         return changes
 
-    # ──────────────────────────────────────────────────────────────
-    # Existing listeners (only message edit reverted to simple before/after)
-    # ──────────────────────────────────────────────────────────────
     @commands.Cog.listener()
     async def on_command(self, ctx):
         if not ctx.guild or ctx.guild.id != GUILD_ID:
@@ -121,11 +88,7 @@ class Logger(commands.Cog):
             raw = ctx.message.content
             parts = raw.split(" ", 1)
             code = parts[1] if len(parts) > 1 else "*no code*"
-            embed = discord.Embed(
-                title="⚙ eval used",
-                color=0x5865f2,
-                timestamp=discord.utils.utcnow()
-            )
+            embed = discord.Embed(title="⚙ eval used", color=0x5865f2, timestamp=discord.utils.utcnow())
             embed.add_field(name="user", value=ctx.author.mention)
             embed.add_field(name="channel", value=ctx.channel.mention)
             embed.add_field(name="input", value=f"```\n{code[:1000]}\n```", inline=False)
@@ -133,16 +96,10 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.bot or not message.guild:
-            return
-        if message.guild.id != GUILD_ID:
+        if message.author.bot or not message.guild or message.guild.id != GUILD_ID:
             return
         if message.channel.id == CONSOLE_CHANNEL:
-            embed = discord.Embed(
-                title="🖥 console input",
-                color=0x2b2d31,
-                timestamp=discord.utils.utcnow()
-            )
+            embed = discord.Embed(title="🖥 console input", color=0x2b2d31, timestamp=discord.utils.utcnow())
             embed.add_field(name="user", value=message.author.mention)
             embed.add_field(name="input", value=f"```\n{message.content[:1000]}\n```", inline=False)
             await self.log(message.guild, embed)
@@ -173,10 +130,7 @@ class Logger(commands.Cog):
     async def on_message_delete(self, message):
         if not message.guild or message.guild.id != GUILD_ID or message.author.bot:
             return
-        self.deleted_cache.append({
-            "content": message.content,
-            "attachments": message.attachments
-        })
+        self.deleted_cache.append({"content": message.content, "attachments": message.attachments})
         embed = discord.Embed(title="🗑 message deleted", color=0xff4500, timestamp=discord.utils.utcnow())
         embed.add_field(name="user", value=message.author.mention)
         embed.add_field(name="channel", value=message.channel.mention)
@@ -190,30 +144,16 @@ class Logger(commands.Cog):
     async def on_bulk_message_delete(self, messages):
         if not messages or messages[0].guild.id != GUILD_ID:
             return
-        embed = discord.Embed(title="🧹 bulk delete", color=0xff4500, timestamp=discord.utils.utcnow())
+        embed = discord.Embed(title="🗑 bulk delete", color=0xff4500, timestamp=discord.utils.utcnow())
         embed.add_field(name="count", value=str(len(messages)))
         embed.add_field(name="channel", value=messages[0].channel.mention)
         await self.log(messages[0].guild, embed)
 
     @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if not before.guild or before.guild.id != GUILD_ID or before.author.bot:
-            return
-        if before.content == after.content:
-            return
-        embed = discord.Embed(title="✏ message edited", color=0xf1c40f, timestamp=discord.utils.utcnow())
-        embed.add_field(name="user", value=before.author.mention)
-        embed.add_field(name="channel", value=before.channel.mention)
-        # Reverted to simple before/after (git-style diff removed as requested)
-        embed.add_field(name="before", value=before.content[:1000] or "*empty*", inline=False)
-        embed.add_field(name="after", value=after.content[:1000] or "*empty*", inline=False)
-        await self.log(before.guild, embed)
-
-    @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
         if guild.id != GUILD_ID:
             return
-        embed = discord.Embed(title="🔨 user banned", color=0xff0000)
+        embed = discord.Embed(title="🔨 user banned", color=0xff4500)
         embed.add_field(name="user", value=str(user))
         await self.log(guild, embed)
 
@@ -241,74 +181,43 @@ class Logger(commands.Cog):
     async def on_guild_role_update(self, before, after):
         embed = discord.Embed(title="✏ role updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
         changed = False
-
         if before.name != after.name:
             embed.add_field(name="name", value=f"{before.name} → {after.name}", inline=False)
             changed = True
-
         perm_changes = self._get_permission_diff(before, after)
         if perm_changes:
             embed.add_field(name="permissions", value="\n".join(perm_changes[:25]), inline=False)
             changed = True
-
         if changed:
             await self.log(after.guild, embed)
 
-    # ──────────────────────────────────────────────────────────────
-    # NEW: Channel permission logging (overwrites + name change)
-    # ──────────────────────────────────────────────────────────────
     @commands.Cog.listener()
-    async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
+    async def on_guild_channel_update(self, before, after):
         if before.guild.id != GUILD_ID:
             return
-
         embed = discord.Embed(title="📡 channel updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
         embed.add_field(name="channel", value=after.mention, inline=False)
         changed = False
-
-        # Name change
         if before.name != after.name:
             embed.add_field(name="name", value=f"{before.name} → {after.name}", inline=False)
             changed = True
-
-        # Permission overwrite changes
-        before_overwrites = {k: v for k, v in before.overwrites.items()}
-        after_overwrites = {k: v for k, v in after.overwrites.items()}
-
-        # New / changed overwrites
+        before_overwrites = dict(before.overwrites)
+        after_overwrites = dict(after.overwrites)
         for target, after_perm in after_overwrites.items():
             target_str = target.mention if hasattr(target, "mention") else target.name
-
             if target not in before_overwrites:
-                # Brand new overwrite
-                embed.add_field(
-                    name=f"➕ new permissions for {target_str}",
-                    value="overridden (check audit log for full list)",
-                    inline=False
-                )
+                embed.add_field(name=f"➕ new permissions for {target_str}", value="overridden (check audit log)", inline=False)
                 changed = True
             else:
-                before_perm = before_overwrites[target]
-                perm_changes = self._get_overwrite_diff(before_perm, after_perm)
+                perm_changes = self._get_overwrite_diff(before_overwrites[target], after_perm)
                 if perm_changes:
-                    embed.add_field(
-                        name=f"✏ permissions updated for {target_str}",
-                        value="\n".join(perm_changes[:20]),
-                        inline=False
-                    )
+                    embed.add_field(name=f"✏ permissions updated for {target_str}", value="\n".join(perm_changes[:20]), inline=False)
                     changed = True
-
-        # Removed overwrites
         for target in list(before_overwrites.keys()):
             if target not in after_overwrites:
                 target_str = target.mention if hasattr(target, "mention") else target.name
-                embed.add_field(
-                    name=f"➖ permissions removed for {target_str}",
-                    value="reset to @everyone",
-                    inline=False
-                )
+                embed.add_field(name=f"➖ permissions removed for {target_str}", value="reset to @everyone", inline=False)
                 changed = True
-
         if changed:
             await self.log(after.guild, embed)
 
@@ -342,9 +251,6 @@ class Logger(commands.Cog):
         embed.add_field(name="name", value=thread.name)
         await self.log(thread.guild, embed)
 
-    # ──────────────────────────────────────────────────────────────
-    # Additional sensible logging (unchanged)
-    # ──────────────────────────────────────────────────────────────
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.guild.id != GUILD_ID:
@@ -368,25 +274,18 @@ class Logger(commands.Cog):
         embed = discord.Embed(title="✏ member updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
         embed.add_field(name="user", value=before.mention)
         changed = False
-
         if before.nick != after.nick:
-            embed.add_field(
-                name="nickname",
-                value=f"{before.nick or '*none*'} → {after.nick or '*none*'}",
-                inline=False
-            )
+            embed.add_field(name="nickname", value=f"{before.nick or '*none*'} → {after.nick or '*none*'}", inline=False)
             changed = True
-
         if before.roles != after.roles:
             added = [r.mention for r in after.roles if r not in before.roles and not r.is_default()]
             removed = [r.mention for r in before.roles if r not in after.roles and not r.is_default()]
             if added:
-                embed.add_field(name="roles added", value=", ".join(added) or "none", inline=False)
+                embed.add_field(name="roles added", value=", ".join(added), inline=False)
                 changed = True
             if removed:
-                embed.add_field(name="roles removed", value=", ".join(removed) or "none", inline=False)
+                embed.add_field(name="roles removed", value=", ".join(removed), inline=False)
                 changed = True
-
         if changed:
             await self.log(before.guild, embed)
 
@@ -396,15 +295,12 @@ class Logger(commands.Cog):
             return
         embed = discord.Embed(title="🏠 guild updated", color=0xf1c40f, timestamp=discord.utils.utcnow())
         changed = False
-
         if before.name != after.name:
             embed.add_field(name="name", value=f"{before.name} → {after.name}", inline=False)
             changed = True
-
         if before.icon != after.icon:
             embed.add_field(name="icon", value="changed" if after.icon else "removed", inline=False)
             changed = True
-
         if changed:
             await self.log(after, embed)
 

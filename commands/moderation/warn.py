@@ -123,15 +123,5 @@ class warn(commands.Cog):
             color=discord.Color.green()
         ))
 
-    @rmwarn.error
-    async def rmwarn_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(
-                title="✖ missing argument",
-                description="usage: `!rmwarn @member <index>`\nuse `!warnings @member` to see indices.",
-                color=discord.Color.red()
-            ))
-
 async def setup(bot):
     await bot.add_cog(warn(bot))

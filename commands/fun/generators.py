@@ -22,17 +22,17 @@ class generators(commands.Cog):
                 title="√ generated password",
                 description=f"```\n{pw}\n```",
                 color=discord.Color.green()
-            ).set_footer(text="sent via dm for security. delete after saving."))
-            await ctx.send(embed=discord.Embed(title="√ password sent", description="check your dms.", color=discord.Color.green()))
+            ).set_footer(text="sent via dms"))
+            await ctx.send(embed=discord.Embed(title="√ password sent", description="check your dms", color=discord.Color.green()))
         except discord.Forbidden:
-            await ctx.send(embed=discord.Embed(title="✖ dms closed", description="i can't dm you. open your dms and try again.", color=discord.Color.red()))
+            await ctx.send(embed=discord.Embed(title="✖ dms closed", description="i can't dm you, open your dms and try again", color=discord.Color.red()))
 
     @commands.command(name="dice", aliases=["roll"])
     async def dice(self, ctx, sides: int = 6):
         if sides < 2:
-            return await ctx.send(embed=discord.Embed(title="✖ invalid sides", description="minimum is `2` sides.", color=discord.Color.red()))
+            return await ctx.send(embed=discord.Embed(title="✖ invalid sides", description="minimum is `2` sides", color=discord.Color.red()))
         if sides > 1000:
-            return await ctx.send(embed=discord.Embed(title="✖ too many sides", description="maximum is `1000` sides.", color=discord.Color.red()))
+            return await ctx.send(embed=discord.Embed(title="✖ too many sides", description="maximum is `1000` sides", color=discord.Color.red()))
 
         result = random.randint(1, sides)
         await ctx.send(embed=discord.Embed(

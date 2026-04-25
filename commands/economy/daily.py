@@ -29,9 +29,9 @@ class Daily(commands.Cog):
         set_cooldown(ctx.author.id, data, "last_daily")
         save_bank(data)
 
-        desc = f"╼ **daily reward** ╾\n\nyou received **⌬ {earnings}** cores."
+        desc = f"╼ **daily reward** ╾\n\nyou received **⌬ {earnings}** cores"
         if debt_paid:
-            desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            desc += f"\n⌬ {debt_paid:,} went toward your debt"
 
         embed = discord.Embed(description=desc, color=0xeb459e)
         embed.set_footer(text=f"current wallet: {data[user_id]['wallet']} cores")

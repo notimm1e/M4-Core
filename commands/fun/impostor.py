@@ -6,19 +6,19 @@ from discord.ext import commands
 ALWAYS_SUS = {"nyxgoober"}
 
 VERDICTS_SUS = [
-    "extremely suspicious. do not trust.",
-    "something is very off here.",
-    "the scan doesn't lie. very sus.",
-    "anomalous readings detected.",
-    "trust level: zero.",
+    "extremely suspicious. do not trust",
+    "something is very off here",
+    "the scan doesn't lie, very sus",
+    "anomalous readings detected",
+    "trust level: zero",
 ]
 
 VERDICTS_CLEAR = [
-    "probably fine. probably.",
-    "no anomalies detected.",
+    "probably fine. probably",
+    "no anomalies detected",
     "seems legit. for now.",
-    "cleared. but stay alert.",
-    "scan complete. nothing unusual.",
+    "cleared, but stay alert",
+    "scan complete, nothing unusual",
 ]
 
 SCAN_STEPS = [

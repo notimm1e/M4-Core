@@ -21,11 +21,5 @@ class eightball(commands.Cog):
         embed.add_field(name="answer", value=random.choice(RESPONSES), inline=False)
         await ctx.send(embed=embed)
 
-    @eightball.error
-    async def eightball_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(title="✖ missing question", description="usage: `!8ball <question>`", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(eightball(bot))

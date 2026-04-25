@@ -8,9 +8,11 @@ from datetime import datetime
 REASONS = [
     "microwaved a fork",
     "googled 'google'",
+    "sent a text to the wrong person and didn't realize it",
     "tried to reply to a voicemail",
     "locked themselves out of their own house twice in one day",
     "asked what time 12pm is",
+    "tried to use a computer without a mouse",
     "argued with autocorrect and lost",
     "put the milk in the cupboard",
     "sent a screenshot of a text instead of forwarding it",
@@ -19,7 +21,15 @@ REASONS = [
     "tried to zoom in on a physical piece of paper",
     "said 'you too' when a waiter said enjoy your meal, then said it again",
     "walked into a push door",
+    "got into the passenger seat of their own car",
+    "tripped over nothing and blamed the floor",
     "replied all on a company-wide email",
+    "accidentally sent a meme in a professional chat",
+    "used the wrong emoji in a message and didn't know how to react",
+    "tried to unlock their phone with their face while wearing sunglasses",
+    "forgot how to spell a common word and had to look it up",
+    "laughed at a joke they didn't understand and then had to pretend they got it",
+    "started a sentence and then forgot what they were going to say",
     "set two alarms 1 minute apart instead of snoozing",
 ]
 

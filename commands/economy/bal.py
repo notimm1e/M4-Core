@@ -26,7 +26,7 @@ class Balance(commands.Cog):
         embed.add_field(name="▼ total", value=f"**⌬ {wallet + bank:,} cores**", inline=False)
         if debt > 0:
             embed.add_field(name="⊘ debt", value=f"**⌬ {debt:,} cores**", inline=False)
-        embed.set_footer(text="m4-core systems")
+        embed.set_footer(text="m4-core economy system")
 
         await ctx.send(embed=embed)
 

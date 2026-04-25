@@ -23,15 +23,5 @@ class poll(commands.Cog):
         except discord.Forbidden:
             pass
 
-    @poll.error
-    async def poll_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(
-                title="✖ missing question",
-                description="provide a question. (e.g. `!poll should we have a movie night?`)",
-                color=discord.Color.red()
-            ))
-
 async def setup(bot):
     await bot.add_cog(poll(bot))

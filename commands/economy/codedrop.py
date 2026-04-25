@@ -26,7 +26,7 @@ class CodeDrop(commands.Cog):
 
     @tasks.loop(minutes=DROP_INTERVAL)
     async def drop_loop(self):
-        # 1. Random Chance Check
+
         if random.random() > DROP_CHANCE:
             return
 
@@ -34,13 +34,11 @@ class CodeDrop(commands.Cog):
         if not channel:
             return
 
-        # 2. Generate Unique Code
         codes = load_codes()
         code = generate_code().upper()
         while code in codes:
             code = generate_code().upper()
 
-        # 3. Setup Data with Expiry Timestamp
         amount = random.randint(250, 500)
         uses = random.randint(1, 5)
         expiry_timestamp = time.time() + CODE_EXPIRE_SECONDS
@@ -50,7 +48,7 @@ class CodeDrop(commands.Cog):
             "uses": uses,
             "redeemed_by": [],
             "expires_at": expiry_timestamp,
-            "message_id": None # We'll update this in a second
+            "message_id": None
         }
 
         # 4. Send Embed
@@ -60,7 +58,7 @@ class CodeDrop(commands.Cog):
             f"amount: ⌬ {amount:,}\n"
             f"uses: {uses}\n\n"
             f"use `!redeem {code}` to claim!\n"
-            f"expires <t:{int(expiry_timestamp)}:R>." # Discord dynamic timestamp
+            f"expires <t:{int(expiry_timestamp)}:R>."
         )
 
         msg = await channel.send(embed=embed)
@@ -69,7 +67,6 @@ class CodeDrop(commands.Cog):
 
     @tasks.loop(seconds=30)
     async def cleanup_loop(self):
-        """Separate loop to handle expiring messages and deleting data."""
         codes = load_codes()
         if not codes:
             return
@@ -78,18 +75,16 @@ class CodeDrop(commands.Cog):
         now = time.time()
         channel = self.bot.get_channel(DROP_CHANNEL_ID)
 
-        # We use list(codes.keys()) so we can delete items while looping
         for code_str, data in list(codes.items()):
             if now > data.get("expires_at", 0):
-                # Edit the message to show it expired
                 if channel and data.get("message_id"):
                     try:
                         msg = await channel.fetch_message(data["message_id"])
-                        expired_embed = discord.Embed(title="╼ code drop ╾", color=0x555555)
-                        expired_embed.description = "⊘ this drop has expired."
+                        expired_embed = discord.Embed(title="╼ code drop! ╾", color=0x555555)
+                        expired_embed.description = "⊘ this drop has expired"
                         await msg.edit(embed=expired_embed)
                     except:
-                        pass # Message was likely deleted manually
+                        pass
 
                 del codes[code_str]
                 changed = True

@@ -19,23 +19,17 @@ class rps(commands.Cog):
         bot_choice = random.choice(CHOICES)
 
         if choice == bot_choice:
-            result, color = "tie.", discord.Color.yellow()
+            result, color = "tie", discord.Color.yellow()
         elif BEATS[choice] == bot_choice:
-            result, color = "you win.", discord.Color.green()
+            result, color = "you win!", discord.Color.green()
         else:
-            result, color = "you lose.", discord.Color.red()
+            result, color = "you lose..", discord.Color.red()
 
         embed = discord.Embed(title="rock paper scissors", color=color)
         embed.add_field(name="you", value=f"{ICONS[choice]} {choice}", inline=True)
         embed.add_field(name="bot", value=f"{ICONS[bot_choice]} {bot_choice}", inline=True)
         embed.add_field(name="result", value=result, inline=False)
         await ctx.send(embed=embed)
-
-    @rps.error
-    async def rps_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(title="✖ missing choice", description="usage: `!rps <rock/paper/scissors>`", color=discord.Color.red()))
 
 async def setup(bot):
     await bot.add_cog(rps(bot))

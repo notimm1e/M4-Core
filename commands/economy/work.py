@@ -31,11 +31,13 @@ class Work(commands.Cog):
         save_bank(data)
 
         logs = ["system maintenance", "data mining", "protocol optimization", "drug dealing",
-                "selling fish", "freelancing", "dog walking", "lawn mowing"]
+                "selling fish", "freelancing", "dog walking", "lawn mowing", "programming",
+                "manual labor", "customer support", "content creation", "video editing", "graphic design",
+                "accounting", "tutoring", "consulting", "espionage", "street performing"]
 
-        desc = f"you earned **⌬ {earnings}** cores."
+        desc = f"you earned **⌬ {earnings}** cores"
         if debt_paid:
-            desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            desc += f"\n⌬ {debt_paid:,} went toward your debt"
 
         embed = discord.Embed(
             title=f"⚒ {random.choice(logs)}",

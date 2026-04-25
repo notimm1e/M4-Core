@@ -28,16 +28,16 @@ class Beg(commands.Cog):
         if random.random() < 0.3:
             save_bank(data)
             return await ctx.send(embed=discord.Embed(
-                description="⊘ request denied by network users.", color=0xfee75c
+                description="⊘ no one gave you any money", color=0xfee75c
             ))
 
         earnings = random.randint(10, 85)
         debt_paid, to_wallet = apply_earnings(user_id, data, earnings)
         save_bank(data)
 
-        desc = f"⌬ **{earnings}** cores added to your wallet."
+        desc = f"⌬ **{earnings}** cores added to your wallet"
         if debt_paid:
-            desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            desc += f"\n⌬ {debt_paid:,} went toward your debt"
 
         await ctx.send(embed=discord.Embed(description=desc, color=0xfee75c))
 

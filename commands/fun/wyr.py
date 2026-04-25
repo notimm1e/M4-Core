@@ -23,6 +23,14 @@ DILEMMAS = [
     ("always itch but never scratch", "always feel like sneezing but never sneeze"),
     ("be able to teleport", "be able to time travel"),
     ("never be able to use social media", "never be able to watch youtube"),
+    ("only be able to eat food that's been blended into a smoothie", "only be able to eat food that's been deep fried"),
+    ("have a rewind button for your life", "have a pause button for your life"),
+    ("be able to control animals with your mind", "be able to control electronics with your mind"),
+    ("always have to say everything on your mind", "never speak again"),
+    ("have a personal chef but no fridge", "have a fridge but no food in it"),
+    ("be able to breathe underwater", "be able to survive in space"),
+    ("have a photographic memory but be terrible at math", "be a math genius but have a terrible memory"),
+    ("only be able to communicate through song lyrics", "only be able to communicate through movie quotes"),
 ]
 
 class WouldYouRather(commands.Cog):
@@ -39,8 +47,6 @@ class WouldYouRather(commands.Cog):
         embed.add_field(name="🅐", value=a, inline=True)
         embed.add_field(name="🅑", value=b, inline=True)
         msg = await ctx.send(embed=embed)
-        await msg.add_reaction("🅐")
-        await msg.add_reaction("🅑")
 
 async def setup(bot):
     await bot.add_cog(WouldYouRather(bot))

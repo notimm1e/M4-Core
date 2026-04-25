@@ -24,21 +24,5 @@ class roleinfo(commands.Cog):
         embed.set_footer(text=f"requested by {ctx.author.name}")
         await ctx.send(embed=embed)
 
-    @roleinfo.error
-    async def roleinfo_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(
-                title="✖ missing role",
-                description="provide a role. (e.g. `!roleinfo moderator`)",
-                color=discord.Color.red()
-            ))
-        elif isinstance(error, commands.RoleNotFound):
-            await ctx.send(embed=discord.Embed(
-                title="✖ role not found",
-                description="that role doesn't exist.",
-                color=discord.Color.red()
-            ))
-
 async def setup(bot):
     await bot.add_cog(roleinfo(bot))

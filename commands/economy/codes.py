@@ -33,12 +33,12 @@ class Codes(commands.Cog):
     async def issuecode(self, ctx, code: str, amount: int, uses: int = 1000):
         if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(
-                description="⊘ unauthorized.", color=0xff4500
+                description="⊘ unauthorized", color=0xff4500
             ))
 
         if amount <= 0:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ amount must be positive.", color=0xff4500
+                description="⊘ amount must be positive", color=0xff4500
             ))
 
         codes = load_codes()
@@ -46,7 +46,7 @@ class Codes(commands.Cog):
 
         if code in codes:
             return await ctx.send(embed=discord.Embed(
-                description=f"⊘ code `{code}` already exists.", color=0xff4500
+                description=f"⊘ code `{code}` already exists!", color=0xff4500
             ))
 
         codes[code] = {
@@ -57,7 +57,7 @@ class Codes(commands.Cog):
         save_codes(codes)
 
         await ctx.send(embed=discord.Embed(
-            description=f"√ code `{code}` issued — **⌬ {amount:,}** cores, **{uses}** use(s).",
+            description=f"√ code `{code}` issued — **⌬ {amount:,}** cores, **{uses}** use(s)",
             color=0x57f287
         ))
 
@@ -68,7 +68,7 @@ class Codes(commands.Cog):
 
         if code not in codes:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ invalid code.", color=0xff4500
+                description="⊘ invalid code!", color=0xff4500
             ), ephemeral=True)
 
         entry = codes[code]
@@ -76,12 +76,12 @@ class Codes(commands.Cog):
 
         if user_id in entry["redeemed_by"]:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ you've already redeemed this code.", color=0xff4500
+                description="⊘ you've already redeemed this code!", color=0xff4500
             ), ephemeral=True)
 
         if entry["uses"] <= 0:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ this code has no uses remaining.", color=0xff4500
+                description="⊘ this code has no uses remaining..", color=0xff4500
             ), ephemeral=True)
 
         data = load_bank()
@@ -94,9 +94,9 @@ class Codes(commands.Cog):
         entry["uses"] -= 1
         save_codes(codes)
 
-        desc = f"√ redeemed `{code}` — **⌬ {amount:,}** cores added."
+        desc = f"√ redeemed `{code}` — **⌬ {amount:,}** cores added"
         if debt_paid:
-            desc += f"\n⌬ {debt_paid:,} went toward your debt."
+            desc += f"\n⌬ {debt_paid:,} went toward your debt"
 
         await ctx.send(embed=discord.Embed(description=desc, color=0x57f287))
 
@@ -104,7 +104,7 @@ class Codes(commands.Cog):
     async def revokecode(self, ctx, code: str):
         if not is_admin(ctx.author.id):
             return await ctx.send(embed=discord.Embed(
-                description="⊘ unauthorized.", color=0xff4500
+                description="⊘ unauthorized", color=0xff4500
             ))
 
         codes = load_codes()
@@ -112,14 +112,14 @@ class Codes(commands.Cog):
 
         if code not in codes:
             return await ctx.send(embed=discord.Embed(
-                description=f"⊘ code `{code}` doesn't exist.", color=0xff4500
+                description=f"⊘ code `{code}` doesn't exist!", color=0xff4500
             ))
 
         del codes[code]
         save_codes(codes)
 
         await ctx.send(embed=discord.Embed(
-            description=f"√ code `{code}` revoked.", color=0x57f287
+            description=f"√ code `{code}` revoked", color=0x57f287
         ))
 
 async def setup(bot):

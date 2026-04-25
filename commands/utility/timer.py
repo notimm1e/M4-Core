@@ -60,13 +60,5 @@ class timer(commands.Cog):
         except discord.Forbidden:
             pass
 
-    @timer.error
-    async def timer_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(title="✖ missing duration", description="usage: `!timer <seconds> [label]`", color=discord.Color.red()))
-        elif isinstance(error, commands.BadArgument):
-            await ctx.send(embed=discord.Embed(title="✖ invalid duration", description="duration must be a number in seconds.", color=discord.Color.red()))
-
 async def setup(bot):
     await bot.add_cog(timer(bot))

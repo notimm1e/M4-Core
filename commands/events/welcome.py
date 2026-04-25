@@ -1,53 +1,46 @@
 import discord
-import json
 import os
+import yaml
 from discord.ext import commands
 
-SETTINGS_FILE = "server_settings.json"
+def _load_cfg():
+    path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "config.yaml"))
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+def _save_cfg(cfg):
+    path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "config.yaml"))
+    with open(path, "w") as f:
+        yaml.dump(cfg, f)
 
 class welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.data = self.load_settings()
-
-    def load_settings(self):
-        if os.path.exists(SETTINGS_FILE):
-            with open(SETTINGS_FILE, "r") as f:
-                return json.load(f)
-        return {}
-
-    def save_settings(self):
-        with open(SETTINGS_FILE, "w") as f:
-            json.dump(self.data, f, indent=4)
+        self.channel_id = _load_cfg()["channels"].get("welcome")
 
     @commands.command(name="setwelcome")
     @commands.has_permissions(manage_guild=True)
     async def setwelcome(self, ctx, channel: discord.TextChannel):
-        guild_id = str(ctx.guild.id)
-        if guild_id not in self.data:
-            self.data[guild_id] = {}
-
-        self.data[guild_id]["welcome_channel"] = channel.id
-        self.save_settings()
+        cfg = _load_cfg()
+        cfg["channels"]["welcome"] = channel.id
+        _save_cfg(cfg)
+        self.channel_id = channel.id
         await ctx.send(embed=discord.Embed(
             title="√ welcome channel set",
-            description=f"welcome messages will now be sent to {channel.mention}.",
+            description=f"welcome messages will now be sent to {channel.mention}",
             color=discord.Color.green()
         ))
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        guild_id = str(member.guild.id)
-        if guild_id not in self.data or "welcome_channel" not in self.data[guild_id]:
+        if not self.channel_id:
             return
-
-        channel = self.bot.get_channel(self.data[guild_id]["welcome_channel"])
+        channel = self.bot.get_channel(self.channel_id)
         if not channel:
             return
-
         embed = discord.Embed(
             title="welcome!",
-            description=f"glad to have you here, {member.mention}.",
+            description=f"glad to have you here, {member.mention}",
             color=discord.Color.blue()
         )
         embed.set_thumbnail(url=member.display_avatar.url)

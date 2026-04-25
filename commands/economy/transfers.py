@@ -27,13 +27,13 @@ class Transfers(commands.Cog):
 
         if amount <= 0:
             return await ctx.send(embed=discord.Embed(
-                description=f"⊘ you must keep at least **⌬ {WALLET_FLOOR:,}** in your wallet.",
+                description=f"⊘ you must keep at least **⌬ {WALLET_FLOOR:,}** in your wallet!",
                 color=0xff4500
             ))
 
         if amount > available:
             return await ctx.send(embed=discord.Embed(
-                description=f"⊘ you can only deposit **⌬ {available:,}** — must keep **⌬ {WALLET_FLOOR:,}** in wallet.",
+                description=f"⊘ you can only deposit **⌬ {available:,}** — must keep **⌬ {WALLET_FLOOR:,}** in your wallet",
                 color=0xff4500
             ))
 
@@ -57,17 +57,17 @@ class Transfers(commands.Cog):
             amount = int(amount)
 
         if amount > bank or amount <= 0:
-            return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores", color=0xff4500))
 
         data[user_id]["bank"] -= amount
         data[user_id]["wallet"] += amount
         save_bank(data)
-        await ctx.send(embed=discord.Embed(description=f"◈ withdrew **⌬ {amount:,}** cores.", color=0x2b2d31))
+        await ctx.send(embed=discord.Embed(description=f"◈ withdrew **⌬ {amount:,}** cores", color=0x2b2d31))
 
     @commands.hybrid_command(name="pay", description="transfer cores to another user")
     async def pay(self, ctx, member: discord.Member, amount: int):
         if member.id == ctx.author.id:
-            return await ctx.send("⊘ you cannot pay yourself.")
+            return await ctx.send("⊘ you cannot pay yourself!")
 
         if amount > self.limit:
             return await ctx.send(embed=discord.Embed(description=f"⊘ transfer limit is **⌬ {self.limit:,}**.", color=0xff4500))
@@ -89,7 +89,7 @@ class Transfers(commands.Cog):
         save_bank(data)
 
         await ctx.send(embed=discord.Embed(
-            description=f"╼ **transfer complete** ╾\n\nsent **⌬ {amount:,}** to {member.display_name.lower()}.",
+            description=f"╼ **transfer complete!** ╾\n\nsent **⌬ {amount:,}** to {member.display_name.lower()}",
             color=0x2b2d31
         ))
 
@@ -105,11 +105,11 @@ class Transfers(commands.Cog):
     @sudo.command(name="transfer")
     async def sudo_transfer(self, ctx, member: discord.Member, amount: int, account: str):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
 
         account = account.lower()
         if account not in ("bank", "wallet"):
-            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`", color=0xff4500))
 
         data = load_bank()
         data = open_account(member.id, data)
@@ -118,17 +118,17 @@ class Transfers(commands.Cog):
         if account == "bank":
             # wallet → bank
             if data[uid]["wallet"] < amount:
-                return await ctx.send(embed=discord.Embed(description="⊘ insufficient wallet cores.", color=0xff4500))
+                return await ctx.send(embed=discord.Embed(description="⊘ insufficient wallet cores", color=0xff4500))
             data[uid]["wallet"] -= amount
             data[uid]["bank"] += amount
-            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s wallet → bank."
+            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s wallet → bank"
         else:
             # bank → wallet
             if data[uid]["bank"] < amount:
-                return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores.", color=0xff4500))
+                return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores", color=0xff4500))
             data[uid]["bank"] -= amount
             data[uid]["wallet"] += amount
-            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s bank → wallet."
+            desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s bank → wallet"
 
         save_bank(data)
         await ctx.send(embed=discord.Embed(description=desc, color=0x57f287))
@@ -136,11 +136,11 @@ class Transfers(commands.Cog):
     @sudo.command(name="deduct")
     async def sudo_deduct(self, ctx, member: discord.Member, amount: int, account: str):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
 
         account = account.lower()
         if account not in ("bank", "wallet"):
-            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`", color=0xff4500))
 
         data = load_bank()
         data = open_account(member.id, data)
@@ -152,24 +152,24 @@ class Transfers(commands.Cog):
         save_bank(data)
 
         await ctx.send(embed=discord.Embed(
-            description=f"◈ deducted **⌬ {deducted:,}** from {member.display_name.lower()}'s {account}.",
+            description=f"◈ deducted **⌬ {deducted:,}** from {member.display_name.lower()}'s {account}",
             color=0x57f287
         ))
 
     @sudo.command(name="set")
     async def sudo_set(self, ctx, member: discord.Member, amount: int, account: str, flag: str = ""):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
 
         if flag != "--force":
             return await ctx.send(embed=discord.Embed(
-                description="⊘ append `--force` to confirm.",
+                description="⊘ append `--force` to confirm",
                 color=0xff4500
             ))
 
         account = account.lower()
         if account not in ("bank", "wallet"):
-            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`", color=0xff4500))
 
         data = load_bank()
         data = open_account(member.id, data)
@@ -179,21 +179,21 @@ class Transfers(commands.Cog):
         save_bank(data)
 
         await ctx.send(embed=discord.Embed(
-            description=f"◈ set {member.display_name.lower()}'s {account} to **⌬ {amount:,}**.",
+            description=f"◈ set {member.display_name.lower()}'s {account} to **⌬ {amount:,}**",
             color=0x57f287
         ))
 
     @sudo.command(name="wipe")
     async def sudo_wipe(self, ctx, member: discord.Member):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
 
         data = load_bank()
         uid = str(member.id)
 
         if uid not in data:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ that user has no economy data.",
+                description="⊘ that user has no economy data!",
                 color=0xff4500
             ))
 
@@ -201,7 +201,7 @@ class Transfers(commands.Cog):
         save_bank(data)
 
         await ctx.send(embed=discord.Embed(
-            description=f"◈ wiped all economy data for {member.display_name.lower()}.",
+            description=f"◈ wiped all economy data for {member.display_name.lower()}",
             color=0x57f287
         ))
 

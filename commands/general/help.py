@@ -17,20 +17,21 @@ class help(commands.Cog):
             "`!ping` · check latency\n"
             "`!uptime` · runtime duration\n"
             "`!about` · bot information\n"
+            "`!avatar [@user]` · show profile picture\n"
+            "`!roleinfo <role>` · information about a role\n"
             "`!help` · show this menu"
         ), inline=False)
 
         embed.add_field(name="◈ utility", value=(
-            "`!avatar [@user]` · show profile picture\n"
             "`!userinfo [@user]` · detailed member data\n"
             "`!serverinfo` · detailed guild stats\n"
-            "`!roleinfo <role>` · information about a role\n"
             "`!calc <expr>` · evaluate math expressions\n"
             "`!poll <query>` · create a yes/no poll\n"
             "`!password [len]` · generate secure string\n"
             "`!dice [sides]` · roll a random die\n"
             "`!snipe` · last deleted message\n"
             "`!timer <sec> [label]` · countdown timer\n"
+            "`!remind <dur> <msg>` · set a reminder\n"
             "`!afk [reason]` · set afk status\n"
             "`!translate <text>` · auto-detect & translate to english\n"
             "`!qr <text>` · generate a qr code\n"
@@ -51,6 +52,8 @@ class help(commands.Cog):
             "`!kick <@user> [reason]` · eject member ⌠perm⌡\n"
             "`!ban <@user> [reason]` · blacklist user ⌠perm⌡\n"
             "`!unban <id> [reason]` · lift blacklist ⌠perm⌡\n"
+            "`!blacklist <@user>` · block from commands ⌠perm⌡\n"
+            "`!rmblacklist <@user>` · unblock user ⌠perm⌡\n"
             "`!timeout <@user> <dur> [reason]` · mute member ⌠perm⌡\n"
             "`!untimeout <@user>` · remove timeout ⌠perm⌡\n"
             "`!slowmode <sec>` · set channel slowmode ⌠perm⌡\n"
@@ -84,14 +87,14 @@ class help(commands.Cog):
             "`!deathdate [@user]` · predict demise\n"
             "`!impostor [@user]` · sus level check\n"
             "`!dumbass [@user]` · issue certificate\n"
-            "`!confess <msg>` · anonymous message\n"
-            "`!wyr` · would you rather"
+            "`!wyr` · would you rather\n"
+            "`!confess <msg>` · anonymous message (dms only)"
         ), inline=False)
 
         embed.add_field(name="◈ maintenance ⌠auth⌡", value=(
             "`!eval <code>` · run code remotely\n"
             "`!pull [branch]` · github sync\n"
-            "`!reloadall` · reload all cogs\n"
+            "`!reload` · reload all cogs\n"
             "`!restart` · reboot bot process\n"
             "`!say <msg>` · send as bot\n"
             "`!admin @user` · add admin\n"
@@ -100,8 +103,12 @@ class help(commands.Cog):
             "`!env [name] [value]` · manage env vars\n"
             "`!issuecode <code> <amt> [uses]` · create redeem code\n"
             "`!revokecode <code>` · delete redeem code\n"
+            "`!brainwash` · wipe slug's chat history\n"
             "`!setwelcome <#ch>` · set welcome channel\n"
-            "`!setconfessions <#ch>` · set confessions channel"
+            "`!setconfessions <#ch>` · set confessions channel\n"
+            "`!sethof <#ch>` · set hall of fame channel\n"
+            "`!setaichat <#ch>` · set ai chat channel\n"
+            "`!setdictionary <#ch>` · set dictionary channel"
         ), inline=False)
 
         embed.set_footer(text="⧖ = cooldown · ⌬ = cores · ⌠perm⌡ = requires permission · ⌠auth⌡ = authorized only")

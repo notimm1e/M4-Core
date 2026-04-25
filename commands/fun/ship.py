@@ -14,7 +14,7 @@ class ship(commands.Cog):
 
         if score < 20: verdict = "absolutely not."
         elif score < 40: verdict = "it's a stretch..."
-        elif score < 60: verdict = "maybe something there."
+        elif score < 60: verdict = "maybe something there?"
         elif score < 80: verdict = "pretty good match!"
         else: verdict = "soulmates. 💘"
 
@@ -23,12 +23,6 @@ class ship(commands.Cog):
         embed.add_field(name="compatibility", value=f"`{bar}` **{score}%**", inline=False)
         embed.add_field(name="verdict", value=verdict, inline=False)
         await ctx.send(embed=embed)
-
-    @ship.error
-    async def ship_error(self, ctx, error):
-        error.handled = True
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(embed=discord.Embed(title="✖ missing members", description="usage: `!ship @user1 @user2`", color=discord.Color.red()))
 
 async def setup(bot):
     await bot.add_cog(ship(bot))

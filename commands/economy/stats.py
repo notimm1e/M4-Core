@@ -9,7 +9,6 @@ class Stats(commands.Cog):
     @commands.hybrid_command(name="leaderboard", aliases=["lb", "top"], description="view the richest users")
     async def leaderboard(self, ctx):
         data = load_bank()
-        # Sort users by total wealth (wallet + bank)
         leaderboard = sorted(data.items(), key=lambda x: x[1]["wallet"] + x[1]["bank"], reverse=True)
         
         embed = discord.Embed(title="╼ core leaderboard ╾", color=0x2b2d31)
@@ -21,7 +20,7 @@ class Stats(commands.Cog):
             total = balances["wallet"] + balances["bank"]
             description += f"`{i}.` **{name}** · ⌬ {total:,}\n"
 
-        embed.description = description or "no data available."
+        embed.description = description or "no data available"
         await ctx.send(embed=embed)
 
 async def setup(bot):

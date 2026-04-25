@@ -12,7 +12,7 @@ class Coinflip(commands.Cog):
         side = side.lower()
         if side not in ("heads", "tails", "h", "t"):
             return await ctx.send(embed=discord.Embed(
-                description="✖ choose `heads` or `tails`.",
+                description="✖ choose `heads` or `tails`",
                 color=0xff4500
             ))
 
@@ -20,7 +20,7 @@ class Coinflip(commands.Cog):
 
         if amount <= 0:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ bet must be greater than 0.",
+                description="⊘ bet must be greater than 0!",
                 color=0xff4500
             ))
 
@@ -32,7 +32,7 @@ class Coinflip(commands.Cog):
 
         if amount > data[user_id]["wallet"]:
             return await ctx.send(embed=discord.Embed(
-                description="⊘ insufficient cores in wallet.",
+                description="⊘ insufficient cores in wallet!",
                 color=0xff4500
             ))
 
@@ -42,16 +42,16 @@ class Coinflip(commands.Cog):
 
         if won:
             debt_paid, to_wallet = apply_earnings(user_id, data, amount)
-            desc = f"{coin} **{result}** — you won **⌬ {amount:,}** cores."
+            desc = f"{coin} **{result}** — you won **⌬ {amount:,}** cores"
             if debt_paid:
-                desc += f"\n⌬ {debt_paid:,} went toward your debt."
+                desc += f"\n⌬ {debt_paid:,} went toward your debt"
             color = 0x57f287
         else:
             apply_loss(user_id, data, amount)
             debt = data[user_id]["debt"]
-            desc = f"{coin} **{result}** — you lost **⌬ {amount:,}** cores."
+            desc = f"{coin} **{result}** — you lost **⌬ {amount:,}** cores"
             if debt > 0:
-                desc += f"\n⌬ {debt:,} now in debt."
+                desc += f"\n⌬ {debt:,} now in debt"
             color = 0xff4500
 
         save_bank(data)

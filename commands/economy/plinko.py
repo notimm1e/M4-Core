@@ -15,10 +15,10 @@ def get_ai_commentary(bet_amount, multiplier, profit):
         
         # Construct the context for the AI
         status = "win" if profit > 0 else "loss"
-        user_input = f"user {status} {abs(profit)} credits. bet was {bet_amount} with {multiplier}x multiplier."
+        user_input = f"user {status} {abs(profit)} credits - bet was {bet_amount} with {multiplier}x multiplier"
 
         system_prompt = (
-            "you are m4 core commenting on results. lowercase only. minimal emojis. "
+            "you are slug, commenting on results. lowercase only. minimal emojis. "
             "if they win: be a hype man, high energy slang. "
             "if they lose small: tell them to touch grass or aw shucks. "
             "if they lose 1000+: tell them to take a break, it's a bad habit, and link ncpgambling.org. "
@@ -91,10 +91,10 @@ class Plinko(commands.Cog):
         data = await debt_prompt(ctx, self.bot, data, ctx.author.id)
 
         if amount <= 0:
-            return await ctx.send("amount must be greater than zero.")
+            return await ctx.send("amount must be greater than zero!")
 
         if amount > data[user_id]["wallet"]:
-            return await ctx.send(embed=discord.Embed(description="⊘ insufficient cores.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ insufficient cores", color=0xff4500))
 
         embed = discord.Embed(
             title="╼ plinko ╾",
@@ -112,7 +112,7 @@ class Plinko(commands.Cog):
         try:
             reaction, user = await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
         except asyncio.TimeoutError:
-            return await message.edit(embed=discord.Embed(description="⌛ timed out selecting risk.", color=0xed4245))
+            return await message.edit(embed=discord.Embed(description="⌛ timed out selecting risk", color=0xed4245))
 
         risk = RISK_EMOJIS[str(reaction.emoji)]
         mode = RISK_MODES[risk]
@@ -157,7 +157,7 @@ class Plinko(commands.Cog):
             f"{'profit' if profit >= 0 else 'loss'}: {abs(profit)}"
         )
         
-        if debt_paid: result_text += f"\n⌬ {debt_paid:,} went toward your debt."
+        if debt_paid: result_text += f"\n⌬ {debt_paid:,} went toward your debt"
         
         # Update Embed
         embed.color = 0x57f287 if multiplier > 1 else 0xfee75c if multiplier == 1 else 0xed4245
@@ -165,7 +165,7 @@ class Plinko(commands.Cog):
         
         # Add AI commentary as a field if successful
         if ai_msg:
-            embed.add_field(name="m4 core", value=ai_msg, inline=False)
+            embed.add_field(name="slug", value=ai_msg, inline=False)
             
         await message.edit(embed=embed)
 
