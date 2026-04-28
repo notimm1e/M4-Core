@@ -102,11 +102,15 @@ class Transfers(commands.Cog):
             color=0x2b2d31
         ))
 
+    async def cog_check(self, ctx):
+        if ctx.command and ctx.command.parent and ctx.command.parent.name == "sudo":
+            if not is_admin(ctx.author.id):
+                await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+                return False
+        return True
+
     @sudo.command(name="transfer")
     async def sudo_transfer(self, ctx, member: discord.Member, amount: int, account: str):
-        if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
-
         account = account.lower()
         if account not in ("bank", "wallet"):
             return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`", color=0xff4500))
@@ -116,14 +120,12 @@ class Transfers(commands.Cog):
         uid = str(member.id)
 
         if account == "bank":
-            # wallet → bank
             if data[uid]["wallet"] < amount:
                 return await ctx.send(embed=discord.Embed(description="⊘ insufficient wallet cores", color=0xff4500))
             data[uid]["wallet"] -= amount
             data[uid]["bank"] += amount
             desc = f"◈ moved **⌬ {amount:,}** from {member.display_name.lower()}'s wallet → bank"
         else:
-            # bank → wallet
             if data[uid]["bank"] < amount:
                 return await ctx.send(embed=discord.Embed(description="⊘ insufficient bank cores", color=0xff4500))
             data[uid]["bank"] -= amount
@@ -135,9 +137,6 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="deduct")
     async def sudo_deduct(self, ctx, member: discord.Member, amount: int, account: str):
-        if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
-
         account = account.lower()
         if account not in ("bank", "wallet"):
             return await ctx.send(embed=discord.Embed(description="⊘ account must be `bank` or `wallet`", color=0xff4500))
@@ -158,9 +157,6 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="set")
     async def sudo_set(self, ctx, member: discord.Member, amount: int, account: str, flag: str = ""):
-        if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
-
         if flag != "--force":
             return await ctx.send(embed=discord.Embed(
                 description="⊘ append `--force` to confirm",
@@ -185,9 +181,6 @@ class Transfers(commands.Cog):
 
     @sudo.command(name="wipe")
     async def sudo_wipe(self, ctx, member: discord.Member):
-        if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized", color=0xff4500))
-
         data = load_bank()
         uid = str(member.id)
 

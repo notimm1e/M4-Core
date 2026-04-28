@@ -9,7 +9,7 @@ class say(commands.Cog):
     @commands.command(name="say")
     async def say(self, ctx, *, message: str):
         if not is_admin(ctx.author.id):
-            return
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         try:
             await ctx.message.delete()

@@ -11,16 +11,17 @@ def load_bank():
     if os.path.exists(BANK_FILE):
         try:
             with open(BANK_FILE, "rb") as f:
-                data = msgpack.unpack(f, raw=False)
+                data = msgpack.unpackb(f.read(), raw=False)
                 return data if data else {}
         except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_bank(data):
+    os.makedirs(os.path.dirname(BANK_FILE), exist_ok=True)
     tmp = BANK_FILE + ".tmp"
     with open(tmp, "wb") as f:
-        msgpack.pack(data, f, use_bin_type=True)
+        f.write(msgpack.packb(data, use_bin_type=True))
     os.replace(tmp, BANK_FILE)
     
 def open_account(user_id, data):

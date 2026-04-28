@@ -9,16 +9,17 @@ def load_warnings():
     if os.path.exists(WARNINGS_FILE):
         try:
             with open(WARNINGS_FILE, "rb") as f:
-                data = msgpack.unpack(f, raw=False)
+                data = msgpack.unpackb(f.read(), raw=False)
                 return data if data else {}
         except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_warnings(data):
+    os.makedirs(os.path.dirname(WARNINGS_FILE), exist_ok=True)
     tmp = WARNINGS_FILE + ".tmp"
     with open(tmp, "wb") as f:
-        msgpack.pack(data, f, use_bin_type=True)
+        f.write(msgpack.packb(data, use_bin_type=True))
     os.replace(tmp, WARNINGS_FILE)
     
 class warn(commands.Cog):

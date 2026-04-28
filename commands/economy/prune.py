@@ -3,6 +3,7 @@ import msgpack
 import os
 import time
 from discord.ext import commands, tasks
+from helpers.economy_base import load_bank, save_bank
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEPARTED_FILE = os.path.normpath(os.path.join(BASE_DIR, "..", "..", "data", "departed.msgpack"))
@@ -12,16 +13,17 @@ def load_departed():
     if os.path.exists(DEPARTED_FILE):
         try:
             with open(DEPARTED_FILE, "rb") as f:
-                data = msgpack.unpack(f, raw=False)
+                data = msgpack.unpackb(f.read(), raw=False)
                 return data if data else {}
         except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_departed(data):
+    os.makedirs(os.path.dirname(DEPARTED_FILE), exist_ok=True)
     tmp = DEPARTED_FILE + ".tmp"
     with open(tmp, "wb") as f:
-        msgpack.pack(data, f, use_bin_type=True)
+        f.write(msgpack.packb(data, use_bin_type=True))
     os.replace(tmp, DEPARTED_FILE)
 
 class AutoPurge(commands.Cog):
@@ -52,12 +54,7 @@ class AutoPurge(commands.Cog):
         if not departed:
             return
 
-        bank_file = os.path.normpath(os.path.join(BASE_DIR, "..", "..", "data", "bank.msgpack"))
-        if not os.path.exists(bank_file):
-            return
-
-        with open(bank_file, "rb") as f:
-            bank = msgpack.unpack(f, raw=False) or {}
+        bank = load_bank()
 
         now = time.time()
         changed_departed = False
@@ -72,10 +69,7 @@ class AutoPurge(commands.Cog):
                 changed_departed = True
 
         if changed_bank:
-            tmp = bank_file + ".tmp"
-            with open(tmp, "wb") as f:
-                msgpack.pack(bank, f, use_bin_type=True)
-            os.replace(tmp, bank_file)
+            save_bank(bank)
 
         if changed_departed:
             save_departed(departed)

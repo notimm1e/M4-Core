@@ -12,16 +12,17 @@ def load_codes():
     if os.path.exists(CODES_FILE):
         try:
             with open(CODES_FILE, "rb") as f:
-                data = msgpack.unpack(f, raw=False)
+                data = msgpack.unpackb(f.read(), raw=False)
                 return data if data else {}
         except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_codes(data):
+    os.makedirs(os.path.dirname(CODES_FILE), exist_ok=True)
     tmp = CODES_FILE + ".tmp"
     with open(tmp, "wb") as f:
-        msgpack.pack(data, f, use_bin_type=True)
+        f.write(msgpack.packb(data, use_bin_type=True))
     os.replace(tmp, CODES_FILE)
 
 class Codes(commands.Cog):

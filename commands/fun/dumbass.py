@@ -41,16 +41,17 @@ def load_tracker():
     if os.path.exists(TRACKER_FILE):
         try:
             with open(TRACKER_FILE, "rb") as f:
-                data = msgpack.unpack(f, raw=False)
+                data = msgpack.unpackb(f.read(), raw=False)
                 return data if data else {}
         except (msgpack.UnpackException, OSError):
             pass
     return {}
 
 def save_tracker(data):
+    os.makedirs(os.path.dirname(TRACKER_FILE), exist_ok=True)
     tmp = TRACKER_FILE + ".tmp"
     with open(tmp, "wb") as f:
-        msgpack.pack(data, f, use_bin_type=True)
+        f.write(msgpack.packb(data, use_bin_type=True))
     os.replace(tmp, TRACKER_FILE)
 
 def get_rank(count):

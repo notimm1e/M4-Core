@@ -1,35 +1,20 @@
 import yaml
 import os
 
-ADMINS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "admins.yaml")
-
-def _resolve():
-    return os.path.normpath(ADMINS_FILE)
-
+ADMINS_FILE = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "admins.yaml"))
 DEFAULT_ADMINS = [779653730978103306, 500683600614785025]
 
-_cache: set | None = None
-
 def load_admins() -> set:
-    global _cache
-    if _cache is not None:
-        return _cache
-    path = _resolve()
-    if not os.path.exists(path):
-        _cache = set(DEFAULT_ADMINS)
-        with open(path, "w") as f:
-            yaml.dump({"admins": sorted(_cache)}, f)
-        return _cache
-    with open(path, "r") as f:
+    if not os.path.exists(ADMINS_FILE):
+        defaults = set(DEFAULT_ADMINS)
+        save_admins(defaults)
+        return defaults
+    with open(ADMINS_FILE, "r") as f:
         data = yaml.safe_load(f) or {}
-    _cache = set(data.get("admins", []))
-    return _cache
+    return set(data.get("admins", []))
 
 def save_admins(admins: set):
-    global _cache
-    _cache = admins
-    path = _resolve()
-    with open(path, "w") as f:
+    with open(ADMINS_FILE, "w") as f:
         yaml.dump({"admins": sorted(admins)}, f)
 
 def is_admin(user_id: int) -> bool:
