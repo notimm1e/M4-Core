@@ -1,10 +1,12 @@
 import yaml
 import os
 
-ADMINS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "admins.yaml")
+ADMINS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "admins.yaml")
 
 def _resolve():
     return os.path.normpath(ADMINS_FILE)
+
+DEFAULT_ADMINS = [779653730978103306, 500683600614785025]
 
 _cache: set | None = None
 
@@ -14,7 +16,9 @@ def load_admins() -> set:
         return _cache
     path = _resolve()
     if not os.path.exists(path):
-        _cache = set()
+        _cache = set(DEFAULT_ADMINS)
+        with open(path, "w") as f:
+            yaml.dump({"admins": sorted(_cache)}, f)
         return _cache
     with open(path, "r") as f:
         data = yaml.safe_load(f) or {}
