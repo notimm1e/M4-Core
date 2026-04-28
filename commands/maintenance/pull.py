@@ -32,7 +32,7 @@ class pull(commands.Cog):
     @commands.command(name="pull")
     async def pull(self, ctx, branch: str = "main"):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500)) await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
         branch = branch.lower()
         if branch not in ["canary", "main"]:
             return await ctx.send("✖ use `!pull canary` or `!pull main`.")

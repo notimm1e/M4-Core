@@ -11,7 +11,7 @@ class restart(commands.Cog):
     @commands.command(name="restart")
     async def restart(self, ctx):
         if not is_admin(ctx.author.id):
-            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500)) await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
+            return await ctx.send(embed=discord.Embed(description="⊘ unauthorized.", color=0xff4500))
 
         await ctx.send(embed=discord.Embed(
             title="⟳ restarting",
