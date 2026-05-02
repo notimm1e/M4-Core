@@ -11,6 +11,7 @@ Discord bot for the Immie server, built with discord.py and cogs.
 - AI chat via Slug (Groq API)
 - Anonymous confessions, Hall of Fame, welcome messages
 - Remote eval console, hot-reload, GitHub pull
+- Web-based terminal to manage bot, pull, restart and remotely execute code (After login)
 
 ## Dependencies
 
@@ -32,6 +33,8 @@ Install with:
 pip install -r requirements
 ```
 
+If you want to expose your web panel to the Internet, you may also need a reverse proxy such as Nginx or cloudflared.
+
 ## Setup
 
 **1. Clone the repo**
@@ -51,15 +54,17 @@ pip install -r requirements.txt
 
 **3. Set environment variables**
 
-Copy `.env.example` to `.env` and fill in your keys:
-
-```bash
-cp .env.example .env
-```
+You'll need to set enviroment variables for the bot to work.
 
 | Variable | Required | Description |
 |---|---|---|
 | `DISCORD_TOKEN` | ✓ | your bot token |
+| `PANEL_PORT` | - | port for the web panel |
+| `PANEL_HOSTNAME` | - | fake hostname to show in web panel |
+| `PANEL_USER` | - | user name to show in web pabel |
+| `SESSION_SECRET` | - | signing session cookies for web panel|
+| `PANEL_PIN` | ✓ | password to enter web panel |
+| `EMERGENCY_PASSPHRASE` | - | phrase to DM bot for to regain emergency admin access |
 | `GROQ_KEY` | ✓ | groq api key for slug ai chat |
 | `OPENWEATHER_KEY` | ✓ | openweathermap key for `!weather` |
 
@@ -104,3 +109,7 @@ python main.py
 ## Hot Reload
 
 Use `!reload` to reload all cogs without restarting, or `!pull [branch]` to sync from GitHub and auto-reload.
+
+## Data
+
+All data such as Economy or statistics are stored in .msgpack format inside the data/ folder.
