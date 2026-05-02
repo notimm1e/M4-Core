@@ -217,6 +217,7 @@ async function dispatch(raw){
     case 'pull':    return cmdPull(args[0]||'main');
     case 'pwd':     p(cwd); return;
     case 'cd':      return cmdCd(args[0]);
+    case 'fetch':   return rote_neofetch;
     default:        return cmdShell(raw);
   }
 }
@@ -392,6 +393,43 @@ def _resolve_cwd(cwd: str) -> str:
         return str(target) if target.is_dir() else str(base)
     except ValueError:
         return str(base)
+
+async def route_neofetch(request: web.Request):
+    cpu = _get_cpu()
+    kernel = _get_kernel()
+    ip = _get_ip()
+    mem = _get_memory()
+
+    swap = ""
+    try:
+        swap = _get_swap()
+    except:
+        swap = ""
+
+    neofetch = f"""
+      _____
+     /     \\        root@m4-core
+    |  o o  |       -----------------
+    |   ^   |       OS: Linux-Like ARM64
+    |  \\___/ |
+     \\_____/        Kernel: {kernel}
+    /|  |  |\\       Shell: bash
+   /_|__|__|_\\      Resolution: 0x0 (assumed headless)
+      |  |          DE: null
+      |  |          WM: null
+      |  |          Terminal: web-panel-stdin
+     /____\\         Terminal Font: JetBrains Mono
+
+     CPU: {cpu}
+     GPU: Apple M4
+     Memory: {mem}
+     Swap: {swap}
+     Disk (/):
+     Local IP (eth0): {ip}
+     Locale: C.UTF-8, EN.US
+"""
+
+    return _text(neofetch)
 
 async def route_shell(request: web.Request):
     _auth(request)
